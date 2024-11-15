@@ -2,10 +2,22 @@
 //   return a + b;
 // }
 
-// export default add;
+// function subtract(a, b) {
+//   return a + b;
+// }
 
-// or
+// const PI = 3.14;
 
-export default function add(a, b) {
+// export { add, subtract, PI };
+
+// ORR
+
+export function add(a, b) {
   return a + b;
 }
+
+export function subtract(a, b) {
+  return a - b;
+}
+
+export const PI = 3.14;
