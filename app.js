@@ -1,46 +1,30 @@
 const fs = require("fs");
 
-// When you press Ctrl + Space after this below, you will see list of methods.
-// You will see some functions with and without Sync at the end.
-// Functions with Sync at the end are as named mentioned, synchronous: use it only for testing
-// don't use sync functions in real-world projects.
-// You must use functions without Sync.
-// fs.
+// We used fs in previous section but you might miss using async/await. This video is for that.
+// fs package was introduced when Node.js was released which means, promises or async/await wasn't a feature at that time.
+// so, they used callback functions at that time.
+// to use promises version of fs. You can use fs.promises
 
-// I am using Sync only for learning purposes.
-// This shows list of files in the given directory
-// const files = fs.readdirSync(".");
-// console.log(files);
+// Since it's a promise version, you can use .then() or .catch()
+fs.promises
+  .readdir(".")
+  .then((files) => console.log(files))
+  .catch((err) => console.error(err));
 
-// Time for asynchronous
-// Every asynchronous functions in fs module takes a callback like this.
-fs.readdir(".", (err, files) => {
-  // Change the path to gibberish above to test error
-  if (err) console.error(err);
-  else console.log(err, files);
-});
+// or you can simply use async/await. async/await is just wrapper around .then() and .catch()
+// I am using Immediately Invoked Functions to use async/await as you can't use on top of the file.
+// Remember that, it is just a limitation of commonjs.
+// When we use es modules in future, you can use async/await on top of file if you have v14.8.0 and later.
+(async () => {
+  try {
+    const content = await fs.promises.readFile("./folder/child/test.txt");
+    console.log(content.toString());
+  } catch (err) {
+    console.error(err);
+  }
+})();
 
-fs.readFile("./folder/child/test.txt", (err, content) => {
-  if (err) console.error(err);
-  // By default, you will get data in buffer, we need to convert it into string to get actual value
-  else console.log(content.toString());
-});
-
-// This re-writes the file
-// fs.writeFile("./folder/child/test.txt", "Hello World", (err) => {
-//   if (err) console.error(err);
-//   else console.log("File has been saved");
-// });
-
-// This appends into the file
-// fs.appendFile("./folder/child/test.txt", "\nHello World", (err) => {
-//   if (err) console.error(err);
-//   else console.log("Content has been appended");
-// });
-
-// there are other functions like
-// fs.exists() to check whether file or folder exists
-// fs.rename() to rename file
-// fs.unlink() to delete file
-// fs.mkdir() to create folder
-// You can check them out yourself in documentation, it's easy to use.
+// Are you tired of using fs.promises everytime?
+// You can actually just import with fs/promises
+// const fs = require("fs/promises")
+// Now, you don't need to use fs.promises everytime.
