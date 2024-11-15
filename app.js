@@ -1,38 +1,35 @@
-// events module is an important module of Node.js
-// many internal modules of Node.js uses it.
-// It allows you to handle and emit events
+// http is based on EventEmitter internally. It is for creating web server.
+const http = require("http");
 
-// This returns EventEmitter class, that's why I am using Pascal convention.
-const EventEmitter = require("events");
+// It takes a handler as an input with req, and res object
+const server = http.createServer((req, res) => {
+  //   console.log(req);
 
-// This is an object based on EventEmitter.
-// EventEmitter is a class which defines properties and methods that should be inside an event.
-// This is like a blueprint
-// You can create different objects using the same class which has different properties and methods.
-// we are creating one below.
-const emitter = new EventEmitter();
+  if (req.method === "GET" && req.url === "/") {
+    // res.write("Hello World");
+    res.setHeader("Content-Type", "text/html");
+    res.write("<h1>Hello World</h1>");
+  }
 
-// This defines handler for an event.
-// We are defining handler for "greet" event.
-// You can think it like having handler for click events in JavaScript.
-// this is same as emitter.addListener
-// emitter.on("greet", () => {
-//   console.log("Hello World");
-// });
+  if (req.method === "GET" && req.url === "/api/users") {
+    res.setHeader("Content-Type", "application/json");
+    res.write(
+      JSON.stringify([
+        { name: "Binamra", id: 1 },
+        { name: "Thapa", id: 2 },
+      ])
+    );
+  }
 
-// This is used to emit an event. It's like signaling the event to do something.
-// emitter.emit("greet");
-
-// You can also pass arguments while emitting.
-// emitter.on("greet", (age, name) => {
-//   console.log("Hello World", age, name);
-// });
-
-// emitter.emit("greet", 23, "Binamra");
-
-// but it's best idea to take a single argument as an object.
-emitter.on("greet", (arg) => {
-  console.log("Hello " + arg.name);
+  res.end();
 });
 
-emitter.emit("greet", { name: "Binamra" });
+// It takes port number as input. It must not be taken by any other program in your device.
+const PORT = 3000;
+server.listen(PORT);
+
+console.log(`🔥 Listening on PORT ${PORT}`);
+
+// You will notice that the application doesn't close.
+// This is because, your application must be running to get and respond to requests.
+// it won't close unless you get an error or you press Ctrl + C / Ctrl + D.
