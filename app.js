@@ -1,14 +1,46 @@
-const crypto = require("crypto");
+const fs = require("fs");
 
-// To generate cryptographically well-built artificial random data in terms of given bytes.
-// You can convert that bytes into a string format with whatever you want.
-const randomValue = crypto.randomBytes(32).toString("hex");
+// When you press Ctrl + Space after this below, you will see list of methods.
+// You will see some functions with and without Sync at the end.
+// Functions with Sync at the end are as named mentioned, synchronous: use it only for testing
+// don't use sync functions in real-world projects.
+// You must use functions without Sync.
+// fs.
 
-// You can create different types of hash using createHash, one of those type available is sha256.
-// Hashes are unique for the value that you give, like we are giving "Hello World" for hashing.
-// and trying to get that in hex format, you can get in other formats.
-// Check documentation for other methods and details
-// We will use this function in future projects.
-const hash = crypto.createHash("sha256").update("Hello World").digest("hex");
+// I am using Sync only for learning purposes.
+// This shows list of files in the given directory
+// const files = fs.readdirSync(".");
+// console.log(files);
 
-console.log({ randomValue, hash });
+// Time for asynchronous
+// Every asynchronous functions in fs module takes a callback like this.
+fs.readdir(".", (err, files) => {
+  // Change the path to gibberish above to test error
+  if (err) console.error(err);
+  else console.log(err, files);
+});
+
+fs.readFile("./folder/child/test.txt", (err, content) => {
+  if (err) console.error(err);
+  // By default, you will get data in buffer, we need to convert it into string to get actual value
+  else console.log(content.toString());
+});
+
+// This re-writes the file
+// fs.writeFile("./folder/child/test.txt", "Hello World", (err) => {
+//   if (err) console.error(err);
+//   else console.log("File has been saved");
+// });
+
+// This appends into the file
+// fs.appendFile("./folder/child/test.txt", "\nHello World", (err) => {
+//   if (err) console.error(err);
+//   else console.log("Content has been appended");
+// });
+
+// there are other functions like
+// fs.exists() to check whether file or folder exists
+// fs.rename() to rename file
+// fs.unlink() to delete file
+// fs.mkdir() to create folder
+// You can check them out yourself in documentation, it's easy to use.
