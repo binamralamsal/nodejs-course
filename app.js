@@ -11,8 +11,21 @@ const app = express();
 // You can also add images inside this folder and you will see that you can access it using /file-name.extension
 // which means we can use css file now.
 app.use(express.static("public"));
-// if you want only after a path to handle all files inside public dir then you have to use it.
-// app.use("/public", express.static("public"));
+
+// You can assign route parameters with colon (:) and key.
+app.get("/profile/:username", (req, res) => {
+  // then you can access it using req.params.key
+  console.log(req.params);
+
+  res.send(`<h1>Profile ${req.params.username}</h1>`);
+});
+
+// if you want multiple route parameters then also you can use it.
+app.get("/profile/:username/article/:slug", (req, res) => {
+  console.log(req.params);
+
+  res.send(`<h1>Article ${req.params.slug} by ${req.params.username}</h1>`);
+});
 
 app.listen(env.PORT, () => {
   console.log("Server starting on port 3000");
