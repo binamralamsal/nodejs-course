@@ -1,91 +1,33 @@
-import crypto from "crypto";
-import { createServer } from "http";
-import { readFile, writeFile } from "fs/promises";
-import path from "path";
+import express from "express";
 
-const PORT = 3000;
-const DATA_FILE = path.join("data", "links.json");
+const app = express();
 
-const server = createServer(async (req, res) => {
-  if (req.method === "GET") {
-    if (req.url === "/") {
-      return serveFile(res, path.join("public", "index.html"), "text/html");
-    } else if (req.url === "/links") {
-      const links = await loadLinks();
-
-      res.writeHead(200, { "Content-Type": "application/json" });
-      return res.end(JSON.stringify(links));
-    } else {
-      const links = await loadLinks();
-      const shortCode = req.url.slice(1);
-
-      if (links[shortCode]) {
-        res.writeHead(302, { Location: links[shortCode] });
-        return res.end();
-      }
-
-      res.writeHead(404, { "Content-Type": "text/plain" });
-      return res.end("Shortened URL not found");
-    }
-  }
-
-  if (req.method === "POST" && req.url === "/shorten") {
-    const links = await loadLinks();
-
-    let body = "";
-    req.on("data", (chunk) => (body += chunk));
-    req.on("end", async () => {
-      console.log(body);
-      const { url, shortCode } = JSON.parse(body);
-
-      if (!url) {
-        res.writeHead(400, { "Content-Type": "text/plain" });
-        return res.end("URL is required.");
-      }
-      const finalShortCode = shortCode || crypto.randomBytes(4).toString("hex");
-
-      if (links[finalShortCode]) {
-        res.writeHead(400, { "Content-Type": "text/plain" });
-        return res.end("Short code already exists. Please choose another.");
-      }
-
-      links[finalShortCode] = url;
-      await saveLinks(links);
-
-      res.writeHead(200, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ success: true, shortCode: finalShortCode }));
-    });
-  }
+// We have learnt that browser sends GET request for getting the webpage.
+// Express has methods like app.get, app.post, which we can use to handle.
+// First parameter is path which you want to handle.
+// Second parameter is callback function which takes request and resposne as parameter
+// Syntax
+/*
+ * app.get(path: string, (req: Request, res: Response) => {})
+ */
+app.get("/", (req, res) => {
+  // Express.js will handle Content-Type automatically based on what you send.
+  // Here, we are sending HTML, hence express will automatically set Content-Type of response as HTML
+  // return res.send("<h1>Hello World</h1>");
+  // You can only send one response from a handler, so it's best idea to use return with it, so it doesn't move down.
+  // This will set Content-Type as text/plain
+  return res.send("Home Page");
 });
 
-async function loadLinks() {
-  try {
-    const data = await readFile(DATA_FILE, "utf-8");
-    return JSON.parse(data);
-  } catch (error) {
-    if (error.code === "ENOENT") {
-      await writeFile(DATA_FILE, JSON.stringify({}));
-      return {};
-    }
-    throw error;
-  }
-}
+app.get("/about", (req, res) => {
+  res.send("About Page");
+});
 
-async function saveLinks(links) {
-  await writeFile(DATA_FILE, JSON.stringify(links));
-}
+app.get("/api", (req, res) => {
+  // This will automatically set Content-Type as json and we also don't have to use JSON.stringify()
+  return res.send({ message: "Hello World" });
+});
 
-async function serveFile(res, filePath, contentType) {
-  try {
-    const data = await readFile(filePath);
-    res.writeHead(200, { "Content-Type": contentType });
-    res.end(data);
-  } catch {
-    res.writeHead(404, { "Content-Type": "text/plain" });
-    res.end("404 Not Found");
-  }
-}
-
-server.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+app.listen(3000, () => {
+  console.log("Server starting on port 3000");
 });
