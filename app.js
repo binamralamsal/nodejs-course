@@ -28,6 +28,11 @@ app.get("/api", (req, res) => {
   return res.send({ message: "Hello World" });
 });
 
-app.listen(3000, () => {
+// You can access value like this
+// console.log(process.env.PORT);
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
   console.log("Server starting on port 3000");
 });
