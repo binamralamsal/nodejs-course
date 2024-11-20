@@ -8,5 +8,29 @@
   </head>
   <body>
     <h1>Home Page</h1>
+
+    <!-- By default, form tag sends GET request to the action. It will send as query parameters -->
+    <form action="/contact" method="post">
+      <div>
+        <label for="name">Name</label>
+        <!-- <input type="text" name="name" id="name" /> -->
+        <input type="text" name="user[name]" id="name" />
+      </div>
+      <div>
+        <label for="message">Message</label>
+        <!-- <textarea
+          name="message"
+          id="message"
+          placeholder="Write your message here"
+        ></textarea> -->
+        <textarea
+          name="user[message]"
+          id="message"
+          placeholder="Write your message here"
+        ></textarea>
+      </div>
+
+      <button>Submit</button>
+    </form>
   </body>
 </html>
