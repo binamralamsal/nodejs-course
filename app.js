@@ -11,20 +11,16 @@ const app = express();
 // You can also add images inside this folder and you will see that you can access it using /file-name.extension
 // which means we can use css file now.
 app.use(express.static("public"));
+app.use(express.urlencoded({ extended: true }));
 
-// You can assign route parameters with colon (:) and key.
-app.get("/profile/:username", (req, res) => {
-  // then you can access it using req.params.key
-  console.log(req.params);
-
-  res.send(`<h1>Profile ${req.params.username}</h1>`);
-});
-
-// if you want multiple route parameters then also you can use it.
-app.get("/profile/:username/article/:slug", (req, res) => {
-  console.log(req.params);
-
-  res.send(`<h1>Article ${req.params.slug} by ${req.params.username}</h1>`);
+app.get("/products", (req, res) => {
+  // query parameters or search parameters are optional parameters which you can access in any route
+  // you can pass query parameters like this /products?page=3
+  // to pass multiple query parameters you can separate all of them with &
+  // /products?page=3&limit=10
+  // then you can access query parameters using req.query in express.js
+  console.log(req.query);
+  return res.send("<h1>Products Page</h1>");
 });
 
 app.listen(env.PORT, () => {
