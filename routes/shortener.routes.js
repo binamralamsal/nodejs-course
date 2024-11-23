@@ -2,29 +2,34 @@ import fs from "fs/promises";
 import path from "path";
 
 import { Router } from "express";
-// import express from "express";
 
 const router = Router();
-// Alternatively
-// const router = express.Router();
 
 const DATA_FILE = path.join("data", "links.json");
 
 router.get("/", async (req, res) => {
   try {
-    const file = await fs.readFile(path.join("views", "index.html"));
+    // const file = await fs.readFile(path.join("views", "index.html"));
     const links = await loadLinks();
 
-    const content = file.toString().replaceAll(
-      "{{ shortened_urls }}",
-      Object.entries(links)
-        .map(
-          ([shortCode, url]) =>
-            `<li><a href="/${shortCode}" target="_blank">${req.host}/${shortCode}</a> -> ${url}</li>`
-        )
-        .join("")
-    );
-    return res.send(content);
+    // const content = file.toString().replaceAll(
+    //   "{{ shortened_urls }}",
+    //   Object.entries(links)
+    //     .map(
+    //       ([shortCode, url]) =>
+    //         `<li><a href="/${shortCode}" target="_blank">${req.host}/${shortCode}</a> -> ${url}</li>`
+    //     )
+    //     .join("")
+    // );
+    // return res.send(content);
+    return res.render("index", {
+      title: "<strong>Thapa Technical</strong>",
+      description: "<code>Hey, welcome to my channel</code>",
+      languages: ["HTML", "CSS", "JavaScript"],
+      links,
+      role: "user",
+      host: req.host,
+    });
   } catch (err) {
     console.error(err);
     return res.status(500).send("Internal server error");

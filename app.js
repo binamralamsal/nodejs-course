@@ -7,12 +7,11 @@ const app = express();
 
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
+app.set("view engine", "ejs");
+// app.set("views", "./views"); // views folder is used by default from current directory
+// so it's not needed, but you can assign another folder if you have.
 
-// You can either use the router directly without base path.
 app.use(shortenerRoutes);
-// If you do this, then all the routes inside this shortenerRoutes will
-// start with /app
-// app.use("/app", shortenerRoutes);
 
 app.listen(env.PORT, () => {
   console.log("Server starting on port 3000");
