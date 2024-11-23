@@ -8,23 +8,6 @@
   </head>
   <body>
     <%- include('header') %>
-    <p>asdf</p>
-
-    <%# This is a comment. If you press Ctrl + U, you won't see this. That's why
-    it's different than HTML Comments. %>
-    <!-- You will see this in output-->
-
-    <%# This is escaped output %>
-    <h1><%= title %></h1>
-
-    <%# This is unescaped output. Make sure to sanitize before putting here %>
-    <div><%- description %></div>
-
-    <%# You can also use normal javascript in ejs using below syntax %>
-    <div>
-      <% let counter = 0; %> <% counter++; %>
-      <p><%= counter %></p>
-    </div>
 
     <h1>URL Shortener</h1>
     <form action="/" method="post">
@@ -51,25 +34,6 @@
       </li>
       <% }) %>
     </ul>
-
-    <%# for loop %>
-    <ul>
-      <% for (let i = 0; i < languages.length; i++) { %>
-      <li><%= languages[i] %></li>
-      <% } %>
-    </ul>
-
-    <%# Conditionals %>
-    <div>
-      <% if (role === "admin") { %>
-      <p>Welcome, admin</p>
-      <% } else if (role === "user") { %>
-      <p>Hello, user. You have limited access.</p>
-      <% } else { %>
-      <p>Please login to use account</p>
-      <% } %>
-    </div>
-
     <%- include('footer') %>
   </body>
 </html>
