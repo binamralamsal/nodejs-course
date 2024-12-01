@@ -1,12 +1,9 @@
-import {
-  getLinkByShortCode,
-  insertLink,
-  getLinks,
-} from "../models/shortener.model.js";
+import { ShortLink } from "../models/shortener.model.js";
+import crypto from "crypto";
 
 export async function getShortenerPage(req, res) {
   try {
-    const links = await getLinks();
+    const links = await ShortLink.find();
 
     return res.render("index", {
       title: "<strong>Thapa Technical</strong>",
@@ -27,7 +24,7 @@ export async function postShortenLink(req, res) {
     const { url, shortCode } = req.body;
     const finalShortCode = shortCode || crypto.randomBytes(4).toString("hex");
 
-    const link = await getLinkByShortCode(finalShortCode);
+    const link = await ShortLink.findOne({ shortCode: finalShortCode });
 
     if (link) {
       return res
@@ -37,7 +34,7 @@ export async function postShortenLink(req, res) {
         );
     }
 
-    await insertLink({ url, shortCode });
+    await ShortLink.create({ url, shortCode: finalShortCode });
 
     return res.redirect("/");
   } catch (err) {
@@ -49,7 +46,7 @@ export async function postShortenLink(req, res) {
 export async function redirectToShortLink(req, res) {
   try {
     const { shortCode } = req.params;
-    const link = await getLinkByShortCode(shortCode);
+    const link = await ShortLink.findOne({ shortCode: shortCode });
 
     if (!link) return res.redirect("/404");
 
