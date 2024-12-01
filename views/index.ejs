@@ -25,10 +25,10 @@
     <h2>Shortened URLs</h2>
     <%# forEach loop %>
     <ul>
-      <% links.forEach(({ short_code, url }) => { %>
+      <% links.forEach(({ shortCode, url }) => { %>
       <li>
-        <a href="/<%= short_code %>" target="_blank"
-          ><%= host %>/<%= short_code %></a
+        <a href="/<%= shortCode %>" target="_blank"
+          ><%= host %>/<%= shortCode %></a
         >
         -> <%= url %>
       </li>

@@ -1,9 +1,3 @@
-import { env } from "./env.js";
-import mysql from "mysql2/promise";
+import { PrismaClient } from "@prisma/client";
 
-export const db = await mysql.createConnection({
-  host: env.DATABASE_HOST,
-  user: env.DATABASE_USER, // Your MySQL username
-  password: env.DATABASE_PASSWORD, // Your MySQL password
-  database: env.DATABASE_NAME, // Your database name
-});
+export const prisma = new PrismaClient();

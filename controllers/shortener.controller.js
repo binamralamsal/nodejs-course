@@ -3,18 +3,14 @@ import {
   getAllShortLinks,
   getShortLinkByShortCode,
   insertShortLink,
-} from "../models/shortener.model.js";
+} from "../services/shortener.services.js";
 
 export async function getShortenerPage(req, res) {
   try {
     const links = await getAllShortLinks();
 
     return res.render("index", {
-      title: "<strong>Thapa Technical</strong>",
-      description: "<code>Hey, welcome to my channel</code>",
-      languages: ["HTML", "CSS", "JavaScript"],
       links,
-      role: "user",
       host: req.host,
     });
   } catch (err) {
