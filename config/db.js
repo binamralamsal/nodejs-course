@@ -1,8 +1,9 @@
 import { env } from "./env.js";
-import mongoose from "mongoose";
+import mysql from "mysql2/promise";
 
-export async function connectDB() {
-  if (env.NODE_ENV === "development") mongoose.set("debug", true);
-
-  return await mongoose.connect(env.MONGODB_URI);
-}
+export const db = await mysql.createConnection({
+  host: env.DATABASE_HOST,
+  user: env.DATABASE_USER, // Your MySQL username
+  password: env.DATABASE_PASSWORD, // Your MySQL password
+  database: env.DATABASE_NAME, // Your database name
+});

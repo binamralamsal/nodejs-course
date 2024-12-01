@@ -3,7 +3,10 @@ import { z } from "zod";
 export const env = z
   .object({
     PORT: z.coerce.number().default(3000),
-    MONGODB_URI: z.string(),
+    DATABASE_HOST: z.string(),
+    DATABASE_USER: z.string(),
+    DATABASE_PASSWORD: z.string(),
+    DATABASE_NAME: z.string(),
     NODE_ENV: z.enum(["development", "production"]).default("development"),
   })
   .parse(process.env);
