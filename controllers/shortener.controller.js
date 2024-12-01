@@ -1,8 +1,12 @@
-import { loadLinks, saveLinks } from "../models/shortener.model.js";
+import {
+  getLinkByShortCode,
+  insertLink,
+  getLinks,
+} from "../models/shortener.model.js";
 
 export async function getShortenerPage(req, res) {
   try {
-    const links = await loadLinks();
+    const links = await getLinks();
 
     return res.render("index", {
       title: "<strong>Thapa Technical</strong>",
@@ -23,9 +27,9 @@ export async function postShortenLink(req, res) {
     const { url, shortCode } = req.body;
     const finalShortCode = shortCode || crypto.randomBytes(4).toString("hex");
 
-    const links = await loadLinks();
+    const link = await getLinkByShortCode(finalShortCode);
 
-    if (links[finalShortCode]) {
+    if (link) {
       return res
         .status(400)
         .send(
@@ -33,8 +37,7 @@ export async function postShortenLink(req, res) {
         );
     }
 
-    links[finalShortCode] = url;
-    await saveLinks(links);
+    await insertLink({ url, shortCode });
 
     return res.redirect("/");
   } catch (err) {
@@ -46,14 +49,11 @@ export async function postShortenLink(req, res) {
 export async function redirectToShortLink(req, res) {
   try {
     const { shortCode } = req.params;
-    const links = await loadLinks();
+    const link = await getLinkByShortCode(shortCode);
 
-    // Rendering 404 template directly here is also possible, but it's tedious if you have to do in multiple places.
-    // This will redirect to a page which doesn't exist hence creating 404 error.
-    // We will learn about better way in future with error handlers.
-    if (!links[shortCode]) return res.redirect("/404");
+    if (!link) return res.redirect("/404");
 
-    return res.redirect(links[shortCode]);
+    return res.redirect(link.url);
   } catch (err) {
     console.error(err);
     return res.status(500).send("Internal server error");
