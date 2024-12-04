@@ -1,20 +1,20 @@
-import { prisma } from "../config/db.js";
+import { eq } from "drizzle-orm";
+import { db } from "../config/db.js";
+import { shortLinksTable } from "../drizzle/schema.js";
 
 export async function getAllShortLinks() {
-  const allShortLinks = await prisma.shortLink.findMany();
-  return allShortLinks;
-}
-
-export async function insertShortLink({ shortCode, url }) {
-  const newShortLink = await prisma.shortLink.create({
-    data: { shortCode, url },
-  });
-  return newShortLink;
+  return db.select().from(shortLinksTable);
 }
 
 export async function getShortLinkByShortCode(shortCode) {
-  const shortLink = await prisma.shortLink.findUnique({
-    where: { shortCode },
-  });
+  const [shortLink] = await db
+    .select()
+    .from(shortLinksTable)
+    .where(eq(shortLinksTable.shortCode, shortCode));
+
   return shortLink;
+}
+
+export async function insertShortLink({ url, shortCode }) {
+  return db.insert(shortLinksTable).values({ url, shortCode });
 }

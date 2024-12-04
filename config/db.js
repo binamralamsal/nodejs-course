@@ -1,3 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { drizzle } from "drizzle-orm/mysql2";
+import { env } from "./env.js";
 
-export const prisma = new PrismaClient();
+export const db = drizzle(env.DATABASE_URL);
