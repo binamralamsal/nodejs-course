@@ -3,10 +3,8 @@ export function getLoginPage(req, res) {
 }
 
 export function postLogin(req, res) {
-  // Syntax for setting cookies. You can also set multiple times
-  // If we don't set Path then it just sets Path to /auth/login
-  res.setHeader("Set-Cookie", "isLoggedIn=true; Path=/;");
-  // res.setHeader("Set-Cookie", ["isLoggedIn=true", "name=John"]);
+  // It by default includes path=/ so we don't have to do it.
+  res.cookie("isLoggedIn", true);
   res.redirect("/");
 }
 
