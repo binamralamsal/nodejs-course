@@ -7,10 +7,20 @@ import {
 
 export async function getShortenerPage(req, res) {
   try {
+    // console.log(req.headers.cookie);
+    const isLoggedIn = Boolean(
+      req.headers.cookie
+        ?.split(";")
+        .find((cookie) => cookie.startsWith("isLoggedIn"))
+        ?.split("=")[1]
+    );
+    console.log(isLoggedIn);
+
     const links = await getAllShortLinks();
 
     return res.render("index", {
       links,
+      isLoggedIn,
       host: req.host,
     });
   } catch (err) {

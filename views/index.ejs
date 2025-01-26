@@ -7,7 +7,9 @@
     <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
-    <%- include('header') %>
+    <%- include('partials/header') %> <% if (isLoggedIn) { %>
+    <p>You are logged in</p>
+    <% } %>
 
     <h1>URL Shortener</h1>
     <form action="/" method="post">
@@ -34,6 +36,6 @@
       </li>
       <% }) %>
     </ul>
-    <%- include('footer') %>
+    <%- include('partials/footer') %>
   </body>
 </html>
