@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1737827473956,
+      "tag": "0000_glossy_abomination",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1737892343997,
+      "tag": "0001_optimal_agent_brand",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1737892411839,
+      "tag": "0002_real_wendell_rand",
+      "breakpoints": true
+    }
+  ]
+}

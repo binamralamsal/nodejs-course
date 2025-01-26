@@ -7,8 +7,6 @@ import {
 
 export async function getShortenerPage(req, res) {
   try {
-    console.log(req.cookies);
-
     const links = await getAllShortLinks();
 
     return res.render("index", {

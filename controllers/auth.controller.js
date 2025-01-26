@@ -11,3 +11,8 @@ export function postLogin(req, res) {
 export function getRegisterPage(req, res) {
   res.render("auth/register");
 }
+
+export function postRegister(req, res) {
+  console.log(req.body);
+  res.redirect("/");
+}
