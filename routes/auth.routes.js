@@ -12,5 +12,6 @@ router
   .route("/register")
   .get(authControllers.getRegisterPage)
   .post(authControllers.postRegister);
+router.get("/me", authControllers.getMe);
 
 export const authRoutes = router;
