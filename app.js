@@ -1,4 +1,6 @@
 import express from "express";
+import flash from "connect-flash";
+import session from "express-session";
 import cookieParser from "cookie-parser";
 
 import { env } from "./config/env.js";
@@ -14,13 +16,17 @@ app.use(express.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 
 app.use(cookieParser());
+// Connect flash uses express sessions to store messages.
+// This package can be used for many other use cases including authentication.
+// But we aren't using it for authentication in this project.
+// Hence, it doesn't matter if we use a strong or weak secret here.
+app.use(
+  session({ secret: "my-secret", resave: true, saveUninitialized: false })
+);
+app.use(flash());
 
-// This must be after cookieParser middleware.
 app.use(verifyAuthentication);
 app.use((req, res, next) => {
-  // setting something in res.locals will send that
-  // to the views, so we can access it in views.
-  // we can access the user object in views automatically.
   res.locals.user = req.user;
   return next();
 });

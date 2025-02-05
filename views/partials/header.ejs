@@ -1,15 +1,17 @@
-<header style="margin: 1rem 0">
-  <h1>Welcome to URL Shortener</h1>
+<header class="header">
+  <h1 class="title">Welcome to URL Shortener</h1>
 
-  <ul>
-    <li>
-      <a href="/">Home</a>
-      <% if (!user) { %>
-      <a href="/auth/login">Login</a>
-      <a href="/auth/register">Register</a>
-      <% } else { %>
-      <a href="/auth/logout">Logout</a>
-      <% } %>
-    </li>
-  </ul>
+  <nav class="nav">
+    <ul class="nav-list">
+      <li class="nav-item">
+        <a href="/" class="nav-link">Home</a>
+        <% if (!user) { %>
+        <a href="/auth/login" class="nav-link">Login</a>
+        <a href="/auth/register" class="nav-link">Register</a>
+        <% } else { %>
+        <a href="/auth/logout" class="nav-link">Logout</a>
+        <% } %>
+      </li>
+    </ul>
+  </nav>
 </header>

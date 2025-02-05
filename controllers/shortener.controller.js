@@ -12,6 +12,8 @@ export async function getShortenerPage(req, res) {
     return res.render("index", {
       links,
       host: req.host,
+      // This will pass error to the route.
+      errors: req.flash("errors"),
     });
   } catch (err) {
     console.error(err);
@@ -27,11 +29,12 @@ export async function postShortenLink(req, res) {
     const link = await getShortLinkByShortCode(finalShortCode);
 
     if (link) {
-      return res
-        .status(400)
-        .send(
-          '<h1>Url with that shortcode already exists, please choose another <a href="/">Go Back</a></h1>'
-        );
+      // This will set error temporarily
+      req.flash(
+        "errors",
+        "Url with that shortcode already exists, please choose another"
+      );
+      return res.redirect("/");
     }
 
     await insertShortLink({ url, shortCode: finalShortCode });

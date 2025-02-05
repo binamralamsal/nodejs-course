@@ -9,7 +9,7 @@ import {
 export function getLoginPage(req, res) {
   if (req.user) return res.redirect("/");
 
-  res.render("auth/login");
+  res.render("auth/login", { errors: req.flash("errors") });
 }
 
 export async function postLogin(req, res) {
@@ -18,10 +18,16 @@ export async function postLogin(req, res) {
   const { email, password } = req.body;
 
   const user = await getUserByEmail(email);
-  if (!user) return res.redirect("/auth/login");
+  if (!user) {
+    req.flash("errors", "Invalid email or password");
+    return res.redirect("/auth/login");
+  }
 
   const isPasswordValid = await verifyPassword(user.password, password);
-  if (!isPasswordValid) return res.redirect("/auth/login");
+  if (!isPasswordValid) {
+    req.flash("errors", "Invalid email or password");
+    return res.redirect("/auth/login");
+  }
 
   const token = generateJWTToken({
     id: user.id,
@@ -36,7 +42,7 @@ export async function postLogin(req, res) {
 export function getRegisterPage(req, res) {
   if (req.user) return res.redirect("/");
 
-  res.render("auth/register");
+  res.render("auth/register", { errors: req.flash("errors") });
 }
 
 export async function postRegister(req, res) {
@@ -45,7 +51,10 @@ export async function postRegister(req, res) {
   const { name, email, password } = req.body;
   const userExists = await getUserByEmail(email);
 
-  if (userExists) return res.redirect("/auth/register");
+  if (userExists) {
+    req.flash("errors", "User already exists");
+    return res.redirect("/auth/register");
+  }
 
   const hashedPassword = await hashPassword(password);
   const [user] = await createUser({ name, email, password: hashedPassword });
