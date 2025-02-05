@@ -11,7 +11,6 @@ export async function getShortenerPage(req, res) {
 
     return res.render("index", {
       links,
-      isLoggedIn: req.cookies.isLoggedIn,
       host: req.host,
     });
   } catch (err) {

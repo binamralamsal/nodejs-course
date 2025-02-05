@@ -49,17 +49,12 @@ export async function postRegister(req, res) {
   res.redirect("/auth/login");
 }
 
-// This is auth protected route.
 export async function getMe(req, res) {
   const token = req.cookies.access_token;
   if (!token) return res.send("Not logged in");
 
   try {
-    // If the JWT token is altered by client, or it has expired, it will throw error.
     const decodedToken = verifyJWTToken(token);
-    // We get the data that we passed while creating the token.
-    // We didn't need to use database for this.
-    console.log(decodedToken);
 
     return res.send(
       `<h1>Hey ${decodedToken.name} - ${decodedToken.email}</h1>`
