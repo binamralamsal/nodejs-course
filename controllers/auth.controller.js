@@ -5,6 +5,10 @@ import {
   hashPassword,
   verifyPassword,
 } from "../services/auth.services.js";
+import {
+  loginUserSchema,
+  registerUserSchema,
+} from "../validators/auth.validators.js";
 
 export function getLoginPage(req, res) {
   if (req.user) return res.redirect("/");
@@ -15,7 +19,14 @@ export function getLoginPage(req, res) {
 export async function postLogin(req, res) {
   if (req.user) return res.redirect("/");
 
-  const { email, password } = req.body;
+  const { data, error } = loginUserSchema.safeParse(req.body);
+  if (error) {
+    const errorMessages = error.errors.map((err) => err.message);
+    req.flash("errors", errorMessages);
+    return res.redirect("/auth/login");
+  }
+
+  const { email, password } = data;
 
   const user = await getUserByEmail(email);
   if (!user) {
@@ -48,7 +59,15 @@ export function getRegisterPage(req, res) {
 export async function postRegister(req, res) {
   if (req.user) return res.redirect("/");
 
-  const { name, email, password } = req.body;
+  const { data, error } = registerUserSchema.safeParse(req.body);
+  if (error) {
+    const errorMessages = error.errors.map((err) => err.message);
+    req.flash("errors", errorMessages);
+    return res.redirect("/auth/register");
+  }
+
+  const { email, password, name } = data;
+
   const userExists = await getUserByEmail(email);
 
   if (userExists) {

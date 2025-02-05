@@ -4,6 +4,7 @@ import {
   getShortLinkByShortCode,
   insertShortLink,
 } from "../services/shortener.services.js";
+import { newShortLinkSchema } from "../validators/shortener.validators.js";
 
 export async function getShortenerPage(req, res) {
   try {
@@ -23,7 +24,16 @@ export async function getShortenerPage(req, res) {
 
 export async function postShortenLink(req, res) {
   try {
-    const { url, shortCode } = req.body;
+    const { data, error } = newShortLinkSchema.safeParse(req.body);
+
+    if (error) {
+      const errorMessages = error.errors.map((err) => err.message);
+      req.flash("errors", errorMessages);
+      return res.redirect("/");
+    }
+
+    const { url, shortCode } = data;
+
     const finalShortCode = shortCode || crypto.randomBytes(4).toString("hex");
 
     const link = await getShortLinkByShortCode(finalShortCode);
