@@ -3,15 +3,18 @@ import {
   generateJWTToken,
   getUserByEmail,
   hashPassword,
-  verifyJWTToken,
   verifyPassword,
 } from "../services/auth.services.js";
 
 export function getLoginPage(req, res) {
+  if (req.user) return res.redirect("/");
+
   res.render("auth/login");
 }
 
 export async function postLogin(req, res) {
+  if (req.user) return res.redirect("/");
+
   const { email, password } = req.body;
 
   const user = await getUserByEmail(email);
@@ -19,8 +22,6 @@ export async function postLogin(req, res) {
 
   const isPasswordValid = await verifyPassword(user.password, password);
   if (!isPasswordValid) return res.redirect("/auth/login");
-
-  // as we all know that this is not secure, as anyone can change the cookie value, and we don't know for which user it is. So, we are going to use jsonwebtoken for this.
 
   const token = generateJWTToken({
     id: user.id,
@@ -33,10 +34,14 @@ export async function postLogin(req, res) {
 }
 
 export function getRegisterPage(req, res) {
+  if (req.user) return res.redirect("/");
+
   res.render("auth/register");
 }
 
 export async function postRegister(req, res) {
+  if (req.user) return res.redirect("/");
+
   const { name, email, password } = req.body;
   const userExists = await getUserByEmail(email);
 
@@ -50,16 +55,12 @@ export async function postRegister(req, res) {
 }
 
 export async function getMe(req, res) {
-  const token = req.cookies.access_token;
-  if (!token) return res.send("Not logged in");
+  if (!req.user) return res.send("Not logged in");
 
-  try {
-    const decodedToken = verifyJWTToken(token);
+  return res.send(`<h1>Hey ${req.user.name} - ${req.user.email}</h1>`);
+}
 
-    return res.send(
-      `<h1>Hey ${decodedToken.name} - ${decodedToken.email}</h1>`
-    );
-  } catch (err) {
-    return res.send("Not logged in");
-  }
+export async function logoutUser(req, res) {
+  res.clearCookie("access_token");
+  res.redirect("/");
 }

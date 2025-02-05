@@ -13,5 +13,6 @@ router
   .get(authControllers.getRegisterPage)
   .post(authControllers.postRegister);
 router.get("/me", authControllers.getMe);
+router.get("/logout", authControllers.logoutUser);
 
 export const authRoutes = router;
