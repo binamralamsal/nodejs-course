@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>URL Shortener</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+
+    <%- include('partials/header') %>
+
+    <main class="container home-container">
+      <h1 class="page-title">Edit Shortlink</h1>
+
+      <form action="/edit/<%= id %>" method="post" class="form">
+        <div class="form-group">
+          <label for="url" class="form-label">Enter URL:</label>
+          <input
+            type="url"
+            name="url"
+            id="url"
+            class="form-input"
+            value="<%= url %>"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="shortCode" class="form-label">Short Code:</label>
+          <input
+            type="text"
+            name="shortCode"
+            id="shortCode"
+            class="form-input"
+            value="<%= shortCode %>"
+            required
+          />
+        </div>
+
+        <% if (errors.length > 0) { %> <% errors.forEach(function(error) { %>
+        <p class="error-message"><%= error %></p>
+        <% }); %> <% } %>
+
+        <button type="submit" class="btn">Update Short link</button>
+      </form>
+    </main>
+
+    <%- include('partials/footer') %>
+  </body>
+</html>

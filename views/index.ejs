@@ -42,7 +42,7 @@
 
       <div class="card-container">
         <ul class="links-list">
-          <% links.forEach(({ shortCode, url }) => { %>
+          <% links.forEach(({ shortCode, url, id }) => { %>
           <li class="link-card">
             <div class="link-content">
               <a href="/<%= shortCode %>" target="_blank" class="link">
@@ -50,9 +50,13 @@
               </a>
               <span class="link-url"><%= url %></span>
             </div>
-            <div class="copy-section">
+            <div class="actions">
               <button class="copy-btn" data-url="<%= host %>/<%= shortCode %>">
                 Copy
+              </button>
+              <a href="/edit/<%= id %>" class="edit-link">Edit</a>
+              <button class="delete-btn" data-shortcode="<%= shortCode %>">
+                Delete
               </button>
             </div>
           </li>
