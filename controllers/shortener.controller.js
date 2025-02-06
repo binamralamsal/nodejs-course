@@ -8,12 +8,13 @@ import { newShortLinkSchema } from "../validators/shortener.validators.js";
 
 export async function getShortenerPage(req, res) {
   try {
-    const links = await getAllShortLinks();
+    if (!req.user) return res.redirect("/auth/login");
+
+    const links = await getAllShortLinks(req.user.id);
 
     return res.render("index", {
       links,
       host: req.host,
-      // This will pass error to the route.
       errors: req.flash("errors"),
     });
   } catch (err) {
@@ -24,6 +25,8 @@ export async function getShortenerPage(req, res) {
 
 export async function postShortenLink(req, res) {
   try {
+    if (!req.user) return res.redirect("/auth/login");
+
     const { data, error } = newShortLinkSchema.safeParse(req.body);
 
     if (error) {
@@ -47,7 +50,11 @@ export async function postShortenLink(req, res) {
       return res.redirect("/");
     }
 
-    await insertShortLink({ url, shortCode: finalShortCode });
+    await insertShortLink({
+      url,
+      shortCode: finalShortCode,
+      userId: req.user.id,
+    });
 
     return res.redirect("/");
   } catch (err) {
