@@ -37,3 +37,9 @@ export async function updateShortLink({ id, url, shortCode, userId }) {
     .set({ url, shortCode })
     .where(and(eq(shortLinksTable.id, id), eq(shortLinksTable.userId, userId)));
 }
+
+export async function deleteShortLink({ id, userId }) {
+  return db
+    .delete(shortLinksTable)
+    .where(and(eq(shortLinksTable.id, id), eq(shortLinksTable.userId, userId)));
+}

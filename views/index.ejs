@@ -55,9 +55,11 @@
                 Copy
               </button>
               <a href="/edit/<%= id %>" class="edit-link">Edit</a>
-              <button class="delete-btn" data-shortcode="<%= shortCode %>">
-                Delete
-              </button>
+              <form action="/delete/<%= id %>" method="post">
+                <button class="delete-btn" data-shortcode="<%= shortCode %>">
+                  Delete
+                </button>
+              </form>
             </div>
           </li>
           <% }) %>

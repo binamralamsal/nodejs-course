@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import {
+  deleteShortLink,
   getAllShortLinks,
   getShortLinkById,
   getShortLinkByShortCode,
@@ -9,8 +10,8 @@ import {
 import {
   editShortLinkSchema,
   newShortLinkSchema,
+  shortLinkIdSchema,
 } from "../validators/shortener.validators.js";
-import { z } from "zod";
 
 export async function getShortenerPage(req, res) {
   try {
@@ -86,7 +87,7 @@ export async function redirectToShortLink(req, res) {
 export async function getEditPage(req, res) {
   if (!req.user) return res.redirect("/auth/login");
 
-  const { data: id, error } = z.coerce.number().int().safeParse(req.params.id);
+  const { data: id, error } = shortLinkIdSchema.safeParse(req.params.id);
   if (error) return res.redirect("/404");
 
   try {
@@ -108,7 +109,7 @@ export async function getEditPage(req, res) {
 export async function postEditLink(req, res) {
   if (!req.user) return res.redirect("/auth/login");
 
-  const { data: id, error } = z.coerce.number().int().safeParse(req.params.id);
+  const { data: id, error } = shortLinkIdSchema.safeParse(req.params.id);
   if (error) return res.redirect("/404");
 
   try {
@@ -140,5 +141,26 @@ export async function postEditLink(req, res) {
 
     console.error(err);
     return res.status(500).send("Internal server error");
+  }
+}
+
+export async function postDeleteShortLink(req, res) {
+  if (!req.user) return res.redirect("/auth/login");
+
+  const { data: id, error } = shortLinkIdSchema.safeParse(req.params.id);
+  if (error) return res.redirect("/404");
+
+  try {
+    const shortLink = await getShortLinkById(id);
+
+    if (!shortLink || shortLink.userId !== req.user.id)
+      return res.redirect("/404");
+
+    await deleteShortLink({ id, userId: req.user.id });
+
+    return res.redirect("/");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal server error");
   }
 }

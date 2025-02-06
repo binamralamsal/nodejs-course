@@ -12,6 +12,7 @@ router
   .route("/edit/:id")
   .get(shortenerControllers.getEditPage)
   .post(shortenerControllers.postEditLink);
+router.post("/delete/:id", shortenerControllers.postDeleteShortLink);
 router.get("/:shortCode", shortenerControllers.redirectToShortLink);
 
 export const shortenerRoutes = router;
