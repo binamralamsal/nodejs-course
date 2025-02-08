@@ -6,7 +6,7 @@ import {
   createSession,
   createUser,
   createAccessToken,
-  getUserByEmail,
+  findUserByEmail,
   hashPassword,
   verifyPassword,
   createRefreshToken,
@@ -34,7 +34,7 @@ export async function postLogin(req, res) {
 
   const { email, password } = data;
 
-  const user = await getUserByEmail(email);
+  const user = await findUserByEmail(email);
   if (!user) {
     req.flash("errors", "Invalid email or password");
     return res.redirect("/auth/login");
@@ -91,7 +91,7 @@ export async function postRegister(req, res) {
 
   const { email, password, name } = data;
 
-  const userExists = await getUserByEmail(email);
+  const userExists = await findUserByEmail(email);
 
   if (userExists) {
     req.flash("errors", "User already exists");

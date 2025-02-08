@@ -11,11 +11,20 @@ import { db } from "../config/db.js";
 import { sessionsTable, usersTable } from "../drizzle/schema.js";
 import { env } from "../config/env.js";
 
-export async function getUserByEmail(email) {
+export async function findUserByEmail(email) {
   const [user] = await db
     .select()
     .from(usersTable)
     .where(eq(usersTable.email, email));
+
+  return user;
+}
+
+export async function findUserById(id) {
+  const [user] = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.id, id));
 
   return user;
 }
@@ -38,6 +47,15 @@ export async function createSession(userId, { ip, userAgent }) {
       ip: ip,
     })
     .$returningId();
+
+  return session;
+}
+
+export async function findSessionById(id) {
+  const [session] = await db
+    .select()
+    .from(sessionsTable)
+    .where(eq(sessionsTable.id, id));
 
   return session;
 }
@@ -70,4 +88,39 @@ export function createRefreshToken(sessionId) {
 
 export function verifyJWTToken(token) {
   return jwt.verify(token, env.JWT_SECRET);
+}
+
+export async function refreshTokens(refreshToken) {
+  try {
+    const decodedToken = verifyJWTToken(refreshToken);
+    const currentSession = await findSessionById(decodedToken.sessionId);
+
+    if (!currentSession || !currentSession.valid)
+      throw new Error("Invalid session");
+
+    const user = await findUserById(currentSession.userId);
+    if (!user) throw new Error("Invalid user");
+
+    const userInfo = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      sessionId: currentSession.id,
+    };
+
+    const newAccessToken = createAccessToken(userInfo);
+    const newRefreshToken = createRefreshToken(currentSession.id);
+
+    return {
+      newAccessToken,
+      newRefreshToken,
+      user: userInfo,
+    };
+  } catch {
+    throw new Error("Invalid refresh token");
+  }
+}
+
+export async function clearSession(sessionId) {
+  return db.delete(sessionsTable).where(eq(sessionsTable.id, sessionId));
 }
