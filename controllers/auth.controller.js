@@ -1,9 +1,15 @@
 import {
+  ACCESS_TOKEN_EXPIRY,
+  REFRESH_TOKEN_EXPIRY,
+} from "../config/constants.js";
+import {
+  createSession,
   createUser,
-  generateJWTToken,
+  createAccessToken,
   getUserByEmail,
   hashPassword,
   verifyPassword,
+  createRefreshToken,
 } from "../services/auth.services.js";
 import {
   loginUserSchema,
@@ -40,12 +46,29 @@ export async function postLogin(req, res) {
     return res.redirect("/auth/login");
   }
 
-  const token = generateJWTToken({
+  const session = await createSession(user.id, {
+    ip: req.clientIp,
+    userAgent: req.headers["user-agent"],
+  });
+
+  const accessToken = createAccessToken({
     id: user.id,
     name: user.name,
     email: user.email,
+    sessionId: session.id,
   });
-  res.cookie("access_token", token);
+  const refreshToken = createRefreshToken(session.id);
+
+  const baseCookieConfig = { httpOnly: true, secure: true };
+
+  res.cookie("access_token", accessToken, {
+    ...baseCookieConfig,
+    maxAge: ACCESS_TOKEN_EXPIRY,
+  });
+  res.cookie("refresh_token", refreshToken, {
+    ...baseCookieConfig,
+    maxAge: REFRESH_TOKEN_EXPIRY,
+  });
 
   res.redirect("/");
 }

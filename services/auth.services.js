@@ -2,8 +2,13 @@ import { eq } from "drizzle-orm";
 import argon2 from "argon2";
 import jwt from "jsonwebtoken";
 
+import {
+  ACCESS_TOKEN_EXPIRY,
+  MILLISECONDS_PER_SECOND,
+  REFRESH_TOKEN_EXPIRY,
+} from "../config/constants.js";
 import { db } from "../config/db.js";
-import { usersTable } from "../drizzle/schema.js";
+import { sessionsTable, usersTable } from "../drizzle/schema.js";
 import { env } from "../config/env.js";
 
 export async function getUserByEmail(email) {
@@ -15,8 +20,26 @@ export async function getUserByEmail(email) {
   return user;
 }
 
-export function createUser({ name, email, password }) {
-  return db.insert(usersTable).values({ name, email, password }).$returningId();
+export async function createUser({ name, email, password }) {
+  const [user] = await db
+    .insert(usersTable)
+    .values({ name, email, password })
+    .$returningId()[0];
+
+  return user;
+}
+
+export async function createSession(userId, { ip, userAgent }) {
+  const [session] = await db
+    .insert(sessionsTable)
+    .values({
+      userId,
+      userAgent: userAgent,
+      ip: ip,
+    })
+    .$returningId();
+
+  return session;
 }
 
 export async function hashPassword(password) {
@@ -27,8 +50,22 @@ export async function verifyPassword(hash, password) {
   return argon2.verify(hash, password);
 }
 
-export function generateJWTToken({ id, name, email }) {
-  return jwt.sign({ id, name, email }, env.JWT_SECRET, { expiresIn: "30d" });
+export function createAccessToken({ id, name, email, sessionId }) {
+  // return jwt.sign({ id, name, email, sessionId }, env.JWT_SECRET, {
+  //   expiresIn: "15m",
+  // });
+  return jwt.sign({ id, name, email, sessionId }, env.JWT_SECRET, {
+    expiresIn: ACCESS_TOKEN_EXPIRY / MILLISECONDS_PER_SECOND,
+  });
+}
+
+export function createRefreshToken(sessionId) {
+  // return jwt.sign({ sessionId }, env.JWT_SECRET, {
+  //   expiresIn: "1w",
+  // });
+  return jwt.sign({ sessionId }, env.JWT_SECRET, {
+    expiresIn: REFRESH_TOKEN_EXPIRY / MILLISECONDS_PER_SECOND,
+  });
 }
 
 export function verifyJWTToken(token) {
