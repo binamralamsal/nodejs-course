@@ -10,6 +10,7 @@ import {
   hashPassword,
   verifyPassword,
   createRefreshToken,
+  clearSession,
 } from "../services/auth.services.js";
 import {
   loginUserSchema,
@@ -112,6 +113,12 @@ export async function getMe(req, res) {
 }
 
 export async function logoutUser(req, res) {
+  if (!req.user) return res.send("Not logged in");
+
+  await clearSession(req.user.sessionId);
+
   res.clearCookie("access_token");
+  res.clearCookie("refresh_token");
+
   res.redirect("/");
 }
