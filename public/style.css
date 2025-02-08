@@ -16,6 +16,7 @@ body {
   font-size: 1.8rem;
   margin-bottom: 1rem;
   color: #007bff;
+  text-align: center;
 }
 
 /* Container Styles */
@@ -26,7 +27,6 @@ body {
   background: white;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  text-align: center;
 }
 
 /* Homepage Container */
@@ -90,6 +90,7 @@ body {
   margin-top: 2rem;
   font-size: 1.8rem;
   color: #007bff;
+  text-align: center;
 }
 
 /* Card Container for Links */

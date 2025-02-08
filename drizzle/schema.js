@@ -1,16 +1,29 @@
 import { relations } from "drizzle-orm";
-import { mysqlTable, varchar, int, timestamp } from "drizzle-orm/mysql-core";
+import {
+  mysqlTable,
+  varchar,
+  int,
+  timestamp,
+  boolean,
+  text,
+} from "drizzle-orm/mysql-core";
 
 export const shortLinksTable = mysqlTable("short_links", {
   id: int("id").autoincrement().primaryKey(),
   shortCode: varchar("short_code", { length: 20 }).notNull().unique(),
   url: varchar("url", { length: 255 }).notNull(),
-  // added these 3 fields
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
   userId: int("user_id")
     .notNull()
-    .references(() => usersTable.id),
+    .references(() => usersTable.id, {
+      onDelete: "CASCADE", // If the referenced user is deleted, all related short links will also be deleted automatically.
+      // Other options:
+      // "RESTRICT" - Prevent deletion of the user if there are related short links.
+      // "SET NULL" - Set 'userId' to NULL for all related short links when the user is deleted.
+      // "NO ACTION" - Prevent deletion if the database has a foreign key violation but differs slightly in behavior compared to "RESTRICT".
+      // "SET DEFAULT" - Sets 'userId' to its default value (requires a default value to be defined) when the user is deleted.
+    }),
 });
 
 export const usersTable = mysqlTable("users", {
@@ -22,15 +35,35 @@ export const usersTable = mysqlTable("users", {
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 });
 
+export const sessionsTable = mysqlTable("sessions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id")
+    .notNull()
+    .references(() => usersTable.id, { onDelete: "CASCADE" }),
+  valid: boolean("valid").default(true).notNull(),
+  userAgent: text("user_agent"),
+  ip: varchar("ip", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
 // A user can have many short links
 export const usersRelations = relations(usersTable, ({ many }) => ({
   shortLinks: many(shortLinksTable),
+  sessions: many(sessionsTable),
 }));
 
 // A short link belongs to a user
 export const shortLinksRelations = relations(shortLinksTable, ({ one }) => ({
   user: one(usersTable, {
     fields: [shortLinksTable.userId],
+    references: [usersTable.id],
+  }),
+}));
+
+export const sessionsRelations = relations(sessionsTable, ({ one }) => ({
+  user: one(usersTable, {
+    fields: [sessionsTable.userId],
     references: [usersTable.id],
   }),
 }));
