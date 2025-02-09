@@ -320,3 +320,7 @@ body {
 .verify-link:hover {
   text-decoration: underline;
 }
+
+.verification-status {
+  margin-bottom: 1rem;
+}

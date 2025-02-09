@@ -146,3 +146,12 @@ export async function getProfilePage(req, res) {
     },
   });
 }
+
+export async function getVerifyEmailPage(req, res) {
+  if (!req.user || req.user?.isEmailValid) return res.redirect("/");
+
+  res.render("auth/verify-email", {
+    email: req.user.email,
+    errors: req.flash("errors"),
+  });
+}
