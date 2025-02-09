@@ -1,8 +1,4 @@
 import {
-  ACCESS_TOKEN_EXPIRY,
-  REFRESH_TOKEN_EXPIRY,
-} from "../config/constants.js";
-import {
   createSession,
   createUser,
   createAccessToken,
@@ -11,6 +7,7 @@ import {
   verifyPassword,
   createRefreshToken,
   clearSession,
+  setAuthCookies,
 } from "../services/auth.services.js";
 import {
   loginUserSchema,
@@ -59,17 +56,7 @@ export async function postLogin(req, res) {
     sessionId: session.id,
   });
   const refreshToken = createRefreshToken(session.id);
-
-  const baseCookieConfig = { httpOnly: true, secure: true };
-
-  res.cookie("access_token", accessToken, {
-    ...baseCookieConfig,
-    maxAge: ACCESS_TOKEN_EXPIRY,
-  });
-  res.cookie("refresh_token", refreshToken, {
-    ...baseCookieConfig,
-    maxAge: REFRESH_TOKEN_EXPIRY,
-  });
+  setAuthCookies({ res, accessToken, refreshToken });
 
   res.redirect("/");
 }
@@ -100,10 +87,23 @@ export async function postRegister(req, res) {
   }
 
   const hashedPassword = await hashPassword(password);
-  const [user] = await createUser({ name, email, password: hashedPassword });
-  console.log(user);
+  const user = await createUser({ name, email, password: hashedPassword });
 
-  res.redirect("/auth/login");
+  const session = await createSession(user.id, {
+    ip: req.clientIp,
+    userAgent: req.headers["user-agent"],
+  });
+
+  const accessToken = createAccessToken({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    sessionId: session.id,
+  });
+  const refreshToken = createRefreshToken(session.id);
+  setAuthCookies({ res, accessToken, refreshToken });
+
+  res.redirect("/");
 }
 
 export async function getMe(req, res) {

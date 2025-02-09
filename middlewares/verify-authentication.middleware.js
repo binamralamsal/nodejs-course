@@ -1,8 +1,8 @@
 import {
-  ACCESS_TOKEN_EXPIRY,
-  REFRESH_TOKEN_EXPIRY,
-} from "../config/constants.js";
-import { refreshTokens, verifyJWTToken } from "../services/auth.services.js";
+  refreshTokens,
+  setAuthCookies,
+  verifyJWTToken,
+} from "../services/auth.services.js";
 
 export async function verifyAuthentication(req, res, next) {
   const accessToken = req.cookies.access_token;
@@ -16,8 +16,7 @@ export async function verifyAuthentication(req, res, next) {
 
   if (accessToken) {
     try {
-      const decodedToken = verifyJWTToken(accessToken);
-      req.user = decodedToken;
+      req.user = verifyJWTToken(accessToken);
 
       return next();
     } catch {}
@@ -28,16 +27,12 @@ export async function verifyAuthentication(req, res, next) {
       const { newAccessToken, newRefreshToken, user } = await refreshTokens(
         refreshToken
       );
-      const baseCookieConfig = { httpOnly: true, secure: true };
       req.user = user;
 
-      res.cookie("access_token", newAccessToken, {
-        ...baseCookieConfig,
-        maxAge: ACCESS_TOKEN_EXPIRY,
-      });
-      res.cookie("refresh_token", newRefreshToken, {
-        ...baseCookieConfig,
-        maxAge: REFRESH_TOKEN_EXPIRY,
+      setAuthCookies({
+        res,
+        accessToken: newAccessToken,
+        refreshToken: newRefreshToken,
       });
 
       return next();

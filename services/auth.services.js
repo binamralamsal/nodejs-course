@@ -33,7 +33,7 @@ export async function createUser({ name, email, password }) {
   const [user] = await db
     .insert(usersTable)
     .values({ name, email, password })
-    .$returningId()[0];
+    .$returningId();
 
   return user;
 }
@@ -69,18 +69,12 @@ export async function verifyPassword(hash, password) {
 }
 
 export function createAccessToken({ id, name, email, sessionId }) {
-  // return jwt.sign({ id, name, email, sessionId }, env.JWT_SECRET, {
-  //   expiresIn: "15m",
-  // });
   return jwt.sign({ id, name, email, sessionId }, env.JWT_SECRET, {
     expiresIn: ACCESS_TOKEN_EXPIRY / MILLISECONDS_PER_SECOND,
   });
 }
 
 export function createRefreshToken(sessionId) {
-  // return jwt.sign({ sessionId }, env.JWT_SECRET, {
-  //   expiresIn: "1w",
-  // });
   return jwt.sign({ sessionId }, env.JWT_SECRET, {
     expiresIn: REFRESH_TOKEN_EXPIRY / MILLISECONDS_PER_SECOND,
   });
@@ -123,4 +117,17 @@ export async function refreshTokens(refreshToken) {
 
 export async function clearSession(sessionId) {
   return db.delete(sessionsTable).where(eq(sessionsTable.id, sessionId));
+}
+
+export function setAuthCookies({ res, accessToken, refreshToken }) {
+  const baseCookieConfig = { httpOnly: true, secure: true };
+
+  res.cookie("access_token", accessToken, {
+    ...baseCookieConfig,
+    maxAge: ACCESS_TOKEN_EXPIRY,
+  });
+  res.cookie("refresh_token", refreshToken, {
+    ...baseCookieConfig,
+    maxAge: REFRESH_TOKEN_EXPIRY,
+  });
 }
