@@ -16,6 +16,14 @@
       <div class="profile-card">
         <h2 class="profile-name">Name: <%= user.name %></h2>
         <p class="profile-email">Email: <%= user.email %></p>
+        <p class="profile-status">
+          Email Verified: <% if (user.emailVerified) { %>
+          <span class="verified">Yes</span>
+          <% } else { %>
+          <span class="not-verified">No</span>
+          <a href="/auth/resend-verification" class="verify-link">Verify Now</a>
+          <% } %>
+        </p>
       </div>
 
       <div class="profile-actions">

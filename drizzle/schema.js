@@ -16,20 +16,14 @@ export const shortLinksTable = mysqlTable("short_links", {
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
   userId: int("user_id")
     .notNull()
-    .references(() => usersTable.id, {
-      onDelete: "CASCADE", // If the referenced user is deleted, all related short links will also be deleted automatically.
-      // Other options:
-      // "RESTRICT" - Prevent deletion of the user if there are related short links.
-      // "SET NULL" - Set 'userId' to NULL for all related short links when the user is deleted.
-      // "NO ACTION" - Prevent deletion if the database has a foreign key violation but differs slightly in behavior compared to "RESTRICT".
-      // "SET DEFAULT" - Sets 'userId' to its default value (requires a default value to be defined) when the user is deleted.
-    }),
+    .references(() => usersTable.id, { onDelete: "CASCADE" }),
 });
 
 export const usersTable = mysqlTable("users", {
   id: int("id").autoincrement().primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   email: varchar("email", { length: 255 }).notNull().unique(),
+  isEmailValid: boolean("is_email_valid").default(false).notNull(),
   password: varchar("password", { length: 255 }).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
@@ -47,13 +41,11 @@ export const sessionsTable = mysqlTable("sessions", {
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 });
 
-// A user can have many short links
 export const usersRelations = relations(usersTable, ({ many }) => ({
   shortLinks: many(shortLinksTable),
   sessions: many(sessionsTable),
 }));
 
-// A short link belongs to a user
 export const shortLinksRelations = relations(shortLinksTable, ({ one }) => ({
   user: one(usersTable, {
     fields: [shortLinksTable.userId],

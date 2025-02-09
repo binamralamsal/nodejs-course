@@ -36,6 +36,13 @@
       "when": 1739037794348,
       "tag": "0004_living_blazing_skull",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1739075414478,
+      "tag": "0005_strange_mantis",
+      "breakpoints": true
     }
   ]
 }

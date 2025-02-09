@@ -55,6 +55,7 @@ export async function postLogin(req, res) {
     name: user.name,
     email: user.email,
     sessionId: session.id,
+    isEmailValid: user.isEmailValid,
   });
   const refreshToken = createRefreshToken(session.id);
   setAuthCookies({ res, accessToken, refreshToken });
@@ -100,6 +101,7 @@ export async function postRegister(req, res) {
     name: user.name,
     email: user.email,
     sessionId: session.id,
+    isEmailValid: user.isEmailValid,
   });
   const refreshToken = createRefreshToken(session.id);
   setAuthCookies({ res, accessToken, refreshToken });
@@ -136,6 +138,11 @@ export async function getProfilePage(req, res) {
   if (!user) return res.redirect("/auth/login");
 
   res.render("auth/profile", {
-    user: { name: user.name, email: user.email, id: user.id },
+    user: {
+      name: user.name,
+      email: user.email,
+      isEmailValid: user.isEmailValid,
+      id: user.id,
+    },
   });
 }

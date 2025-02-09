@@ -68,10 +68,20 @@ export async function verifyPassword(hash, password) {
   return argon2.verify(hash, password);
 }
 
-export function createAccessToken({ id, name, email, sessionId }) {
-  return jwt.sign({ id, name, email, sessionId }, env.JWT_SECRET, {
-    expiresIn: ACCESS_TOKEN_EXPIRY / MILLISECONDS_PER_SECOND,
-  });
+export function createAccessToken({
+  id,
+  name,
+  email,
+  sessionId,
+  isEmailValid,
+}) {
+  return jwt.sign(
+    { id, name, email, sessionId, isEmailValid },
+    env.JWT_SECRET,
+    {
+      expiresIn: ACCESS_TOKEN_EXPIRY / MILLISECONDS_PER_SECOND,
+    }
+  );
 }
 
 export function createRefreshToken(sessionId) {
@@ -99,6 +109,7 @@ export async function refreshTokens(refreshToken) {
       id: user.id,
       name: user.name,
       email: user.email,
+      isEmailValid: user.isEmailValid,
       sessionId: currentSession.id,
     };
 
