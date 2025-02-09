@@ -8,6 +8,7 @@ import {
   createRefreshToken,
   clearSession,
   setAuthCookies,
+  findUserById,
 } from "../services/auth.services.js";
 import {
   loginUserSchema,
@@ -121,4 +122,20 @@ export async function logoutUser(req, res) {
   res.clearCookie("refresh_token");
 
   res.redirect("/");
+}
+
+export async function getProfilePage(req, res) {
+  if (!req.user) return res.redirect("/auth/login");
+
+  // You might be wondering why we aren't using req.user
+  // that's because it's a profile page, and we want it to be updated
+  // without having to wait for 15 min of access token refresh
+  // so we're fetching the user from the database
+  // other routes can use req.user
+  const user = await findUserById(req.user.id);
+  if (!user) return res.redirect("/auth/login");
+
+  res.render("auth/profile", {
+    user: { name: user.name, email: user.email, id: user.id },
+  });
 }

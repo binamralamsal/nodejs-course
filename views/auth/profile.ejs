@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profile</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+
+  <body>
+    <%- include('../partials/header') %>
+
+    <main class="container profile-container">
+      <h1 class="page-title">Your Profile</h1>
+
+      <div class="profile-card">
+        <h2 class="profile-name">Name: <%= user.name %></h2>
+        <p class="profile-email">Email: <%= user.email %></p>
+      </div>
+
+      <div class="profile-actions">
+        <a href="/auth/edit-profile" class="btn">Edit Profile</a>
+        <a href="/auth/change-password" class="btn">Change Password</a>
+        <a href="/auth/logout" class="btn">Logout</a>
+      </div>
+    </main>
+
+    <%- include('../partials/footer') %>
+  </body>
+</html>
