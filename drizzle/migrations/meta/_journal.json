@@ -43,6 +43,13 @@
       "when": 1739075414478,
       "tag": "0005_strange_mantis",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1739077257561,
+      "tag": "0006_lush_argent",
+      "breakpoints": true
     }
   ]
 }

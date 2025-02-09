@@ -1,4 +1,4 @@
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   mysqlTable,
   varchar,
@@ -16,7 +16,7 @@ export const shortLinksTable = mysqlTable("short_links", {
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
   userId: int("user_id")
     .notNull()
-    .references(() => usersTable.id, { onDelete: "CASCADE" }),
+    .references(() => usersTable.id, { onDelete: "cascade" }),
 });
 
 export const usersTable = mysqlTable("users", {
@@ -29,11 +29,24 @@ export const usersTable = mysqlTable("users", {
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 });
 
+export const verifyEmailTokensTable = mysqlTable("verify_email_tokens", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id")
+    .notNull()
+    .references(() => usersTable.id, { onDelete: "cascade" }),
+  token: varchar("token", { length: 8 }).notNull(),
+  expiresAt: timestamp("expires_at")
+    // The brackets inside sql`` is necessary here, otherwise you would get syntax error.
+    .default(sql`(CURRENT_TIMESTAMP + INTERVAL 1 DAY)`)
+    .notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const sessionsTable = mysqlTable("sessions", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("user_id")
     .notNull()
-    .references(() => usersTable.id, { onDelete: "CASCADE" }),
+    .references(() => usersTable.id, { onDelete: "cascade" }),
   valid: boolean("valid").default(true).notNull(),
   userAgent: text("user_agent"),
   ip: varchar("ip", { length: 255 }),
