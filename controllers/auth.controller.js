@@ -9,6 +9,9 @@ import {
   clearSession,
   setAuthCookies,
   findUserById,
+  generateRandomToken,
+  createVerifyEmailLink,
+  insertVerifyEmailToken,
 } from "../services/auth.services.js";
 import {
   loginUserSchema,
@@ -154,4 +157,19 @@ export async function getVerifyEmailPage(req, res) {
     email: req.user.email,
     errors: req.flash("errors"),
   });
+}
+
+export async function resendVerificationLink(req, res) {
+  if (!req.user || req.user.isEmailValid) return res.redirect("/");
+
+  const randomToken = generateRandomToken();
+
+  await insertVerifyEmailToken({ userId: req.user.id, token: randomToken });
+
+  const verifyEmailLink = createVerifyEmailLink({
+    email: req.user.email,
+    token: randomToken,
+  });
+
+  res.redirect("/auth/verify-email");
 }

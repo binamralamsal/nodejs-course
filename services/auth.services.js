@@ -1,5 +1,6 @@
-import { eq } from "drizzle-orm";
+import { eq, lt, sql } from "drizzle-orm";
 import argon2 from "argon2";
+import crypto from "crypto";
 import jwt from "jsonwebtoken";
 
 import {
@@ -8,7 +9,11 @@ import {
   REFRESH_TOKEN_EXPIRY,
 } from "../config/constants.js";
 import { db } from "../config/db.js";
-import { sessionsTable, usersTable } from "../drizzle/schema.js";
+import {
+  sessionsTable,
+  usersTable,
+  verifyEmailTokensTable,
+} from "../drizzle/schema.js";
 import { env } from "../config/env.js";
 
 export async function findUserByEmail(email) {
@@ -141,4 +146,26 @@ export function setAuthCookies({ res, accessToken, refreshToken }) {
     ...baseCookieConfig,
     maxAge: REFRESH_TOKEN_EXPIRY,
   });
+}
+
+export function generateRandomToken(digits = 8) {
+  const min = 10 ** (digits - 1);
+  const max = 10 ** digits;
+
+  return crypto.randomInt(min, max).toString();
+}
+
+export function createVerifyEmailLink({ email, token }) {
+  const uriEncodedEmail = encodeURIComponent(email);
+
+  return `${env.FRONTEND_URL}/auth/verify-email-token?token=${token}&email=${uriEncodedEmail}`;
+}
+
+export async function insertVerifyEmailToken({ userId, token }) {
+  // This will delete expired tokens of everyone
+  await db
+    .delete(verifyEmailTokensTable)
+    .where(lt(verifyEmailTokensTable.expiresAt, sql`CURRENT_TIMESTAMP`));
+
+  return db.insert(verifyEmailTokensTable).values({ userId, token });
 }
