@@ -1,4 +1,4 @@
-import { eq, lt, sql } from "drizzle-orm";
+import { and, eq, gte, lt, or, sql } from "drizzle-orm";
 import argon2 from "argon2";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
@@ -163,9 +163,50 @@ export function createVerifyEmailLink({ email, token }) {
 
 export async function insertVerifyEmailToken({ userId, token }) {
   // This will delete expired tokens of everyone
-  await db
-    .delete(verifyEmailTokensTable)
-    .where(lt(verifyEmailTokensTable.expiresAt, sql`CURRENT_TIMESTAMP`));
+  await db.delete(verifyEmailTokensTable).where(
+    or(
+      lt(verifyEmailTokensTable.expiresAt, sql`CURRENT_TIMESTAMP`),
+      eq(verifyEmailTokensTable.userId, userId) // I am deleting previous user tokens before inserting one
+    )
+  );
 
   return db.insert(verifyEmailTokensTable).values({ userId, token });
+}
+
+export async function findVerificationEmailToken({ email, token }) {
+  return db
+    .select({
+      userId: usersTable.id,
+      email: usersTable.email,
+      token: verifyEmailTokensTable.token,
+      expiresAt: verifyEmailTokensTable.expiresAt,
+    })
+    .from(verifyEmailTokensTable)
+    .where(
+      and(
+        eq(verifyEmailTokensTable.token, token),
+        eq(usersTable.email, email), // We are using innerJoin, hence we can use usersTable here.
+        gte(verifyEmailTokensTable.expiresAt, sql`CURRENT_TIMESTAMP`) // Token should not be expired
+        // You could basically check whether it's expired using javascript too, but I prefer to do it like this.
+      )
+    )
+    .innerJoin(usersTable, eq(usersTable.id, verifyEmailTokensTable.userId)); // Joining users table to get user info
+}
+
+export async function verifyUserEmail(email) {
+  return db
+    .update(usersTable)
+    .set({ isEmailValid: true })
+    .where(eq(usersTable.email, email));
+}
+
+export async function clearVerifyEmailTokens(email) {
+  const [user] = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.email, email));
+
+  return db
+    .delete(verifyEmailTokensTable)
+    .where(eq(verifyEmailTokensTable.userId, user.id));
 }

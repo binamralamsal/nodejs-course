@@ -15,6 +15,7 @@ router
 router.get("/me", authControllers.getMe);
 router.get("/profile", authControllers.getProfilePage);
 router.get("/verify-email", authControllers.getVerifyEmailPage);
+router.get("/verify-email-token", authControllers.verifyEmailToken);
 router.post(
   "/resend-verification-link",
   authControllers.resendVerificationLink

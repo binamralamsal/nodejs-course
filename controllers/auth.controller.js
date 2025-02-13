@@ -13,10 +13,14 @@ import {
   generateRandomToken,
   createVerifyEmailLink,
   insertVerifyEmailToken,
+  findVerificationEmailToken,
+  verifyUserEmail,
+  clearVerifyEmailTokens,
 } from "../services/auth.services.js";
 import {
   loginUserSchema,
   registerUserSchema,
+  verifyEmailInformationSchema,
 } from "../validators/auth.validators.js";
 
 export function getLoginPage(req, res) {
@@ -167,6 +171,7 @@ export async function resendVerificationLink(req, res) {
 
   await insertVerifyEmailToken({ userId: req.user.id, token: randomToken });
 
+  // You can also encrypt these tokens and decrypt them when verifying if you want
   const verifyEmailLink = createVerifyEmailLink({
     email: req.user.email,
     token: randomToken,
@@ -184,4 +189,23 @@ export async function resendVerificationLink(req, res) {
   }).catch(console.error);
 
   res.redirect("/auth/verify-email");
+}
+
+export async function verifyEmailToken(req, res) {
+  // we aren't checking auth status because we want user to verify their email even if they're not logged in
+  const { data, error } = verifyEmailInformationSchema.safeParse(req.query);
+  if (error) {
+    return res.send("Verification link invalid or expired!");
+  }
+
+  const [token] = await findVerificationEmailToken(data);
+  // we are checking whether token is available in database directly in sql query, so we don't need to do in javascript.
+  if (!token) res.send("Verification link invalid or expired!");
+
+  await verifyUserEmail(token.email); // you can also use data.email
+  // we want to clear all tokens of this user after being verified.
+  // we aren't awaiting it such that it doesn't make user wait to get response.
+  clearVerifyEmailTokens(token.email).catch(console.error);
+
+  return res.redirect("/auth/profile");
 }
