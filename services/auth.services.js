@@ -15,6 +15,7 @@ import {
   verifyEmailTokensTable,
 } from "../drizzle/schema.js";
 import { env } from "../config/env.js";
+import { sendEmail } from "../lib/nodemailer.js";
 
 export async function findUserByEmail(email) {
   const [user] = await db
@@ -209,4 +210,26 @@ export async function clearVerifyEmailTokens(email) {
   return db
     .delete(verifyEmailTokensTable)
     .where(eq(verifyEmailTokensTable.userId, user.id));
+}
+
+// we are doing this to reuse in register
+export async function sendNewVerifyEmailLink({ email, userId }) {
+  const randomToken = generateRandomToken();
+
+  await insertVerifyEmailToken({ userId: userId, token: randomToken });
+
+  const verifyEmailLink = createVerifyEmailLink({
+    email,
+    token: randomToken,
+  });
+
+  sendEmail({
+    subject: "Verify your email",
+    html: `
+          <h1>Click the link below to verify your email</h1>
+          <p>You can use this token: <code>${randomToken}</code></p>
+          <a href="${verifyEmailLink}">Verify Email</a>
+        `,
+    to: email,
+  }).catch(console.error);
 }

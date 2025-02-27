@@ -16,6 +16,7 @@ import {
   findVerificationEmailToken,
   verifyUserEmail,
   clearVerifyEmailTokens,
+  sendNewVerifyEmailLink,
 } from "../services/auth.services.js";
 import {
   loginUserSchema,
@@ -114,7 +115,11 @@ export async function postRegister(req, res) {
   const refreshToken = createRefreshToken(session.id);
   setAuthCookies({ res, accessToken, refreshToken });
 
-  res.redirect("/");
+  // sending verify email link in register
+  await sendNewVerifyEmailLink({ email, userId: user.id });
+
+  // redirect to verify email page after registering
+  res.redirect("/auth/verify-email");
 }
 
 export async function getMe(req, res) {
@@ -167,26 +172,8 @@ export async function getVerifyEmailPage(req, res) {
 export async function resendVerificationLink(req, res) {
   if (!req.user || req.user.isEmailValid) return res.redirect("/");
 
-  const randomToken = generateRandomToken();
-
-  await insertVerifyEmailToken({ userId: req.user.id, token: randomToken });
-
-  // You can also encrypt these tokens and decrypt them when verifying if you want
-  const verifyEmailLink = createVerifyEmailLink({
-    email: req.user.email,
-    token: randomToken,
-  });
-
-  // we aren't awaiting it because we don't want to make the user wait for email to be sent.
-  sendEmail({
-    subject: "Verify your email",
-    html: `
-      <h1>Click the link below to verify your email</h1>
-      <p>You can use this token: <code>${randomToken}</code></p>
-      <a href="${verifyEmailLink}">Verify Email</a>
-    `,
-    to: req.user.email,
-  }).catch(console.error);
+  // we are doing this to reuse in register
+  await sendNewVerifyEmailLink({ email: req.user.email, userId: req.user.id });
 
   res.redirect("/auth/verify-email");
 }
