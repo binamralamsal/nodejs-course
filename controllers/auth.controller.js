@@ -106,10 +106,10 @@ export async function postRegister(req, res) {
 
   const accessToken = createAccessToken({
     id: user.id,
-    name: user.name,
-    email: user.email,
+    name,
+    email,
     sessionId: session.id,
-    isEmailValid: user.isEmailValid,
+    isEmailValid: false,
   });
   const refreshToken = createRefreshToken(session.id);
   setAuthCookies({ res, accessToken, refreshToken });
