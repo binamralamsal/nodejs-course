@@ -21,5 +21,9 @@ router.post(
   authControllers.resendVerificationLink
 );
 router.get("/logout", authControllers.logoutUser);
+router
+  .route("/edit-profile")
+  .get(authControllers.getEditProfilePage)
+  .post(authControllers.postEditProfile);
 
 export const authRoutes = router;

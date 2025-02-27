@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edit Profile</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <%- include('../partials/header') %>
+    <main class="container profile-container">
+      <h1 class="page-title">Edit Your Profile</h1>
+
+      <div class="profile-card">
+        <form action="/auth/edit-profile" method="POST" class="form">
+          <div class="form-group">
+            <label for="name" class="form-label">Name</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              class="form-input"
+              value="<%= name %>"
+              required
+            />
+            <% if (errors.length > 0) { %> <% errors.forEach(function(error) {
+            %>
+            <p class="error-message"><%= error %></p>
+            <% }); %> <% } %>
+          </div>
+
+          <div class="form-group">
+            <button type="submit" class="btn">Save Changes</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="profile-actions">
+        <a href="/profile" class="btn">Back to Profile</a>
+      </div>
+    </main>
+    <%- include('../partials/footer') %>
+  </body>
+</html>

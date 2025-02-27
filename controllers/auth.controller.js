@@ -17,8 +17,10 @@ import {
   verifyUserEmail,
   clearVerifyEmailTokens,
   sendNewVerifyEmailLink,
+  updateUserProfile,
 } from "../services/auth.services.js";
 import {
+  editProfileSchema,
   loginUserSchema,
   registerUserSchema,
   verifyEmailInformationSchema,
@@ -182,17 +184,48 @@ export async function verifyEmailToken(req, res) {
   // we aren't checking auth status because we want user to verify their email even if they're not logged in
   const { data, error } = verifyEmailInformationSchema.safeParse(req.query);
   if (error) {
-    return res.send("Verification link invalid or expired!");
+    req.flash("errors", "Verification link invalid or expired!");
+    return res.redirect("/auth/profile");
   }
 
   const [token] = await findVerificationEmailToken(data);
+
   // we are checking whether token is available in database directly in sql query, so we don't need to do in javascript.
-  if (!token) res.send("Verification link invalid or expired!");
+  if (!token) {
+    req.flash("errors", "Verification link invalid or expired!");
+    return res.redirect("/auth/profile");
+  }
 
   await verifyUserEmail(token.email); // you can also use data.email
   // we want to clear all tokens of this user after being verified.
   // we aren't awaiting it such that it doesn't make user wait to get response.
   clearVerifyEmailTokens(token.email).catch(console.error);
+
+  return res.redirect("/auth/profile");
+}
+
+export async function getEditProfilePage(req, res) {
+  if (!req.user) return res.redirect("/");
+
+  const user = await findUserById(req.user.id);
+
+  return res.render("auth/edit-profile", {
+    name: user.name,
+    errors: req.flash("errors"),
+  });
+}
+
+export async function postEditProfile(req, res) {
+  if (!req.user) return res.redirect("/");
+
+  const { data, error } = editProfileSchema.safeParse(req.body);
+  if (error) {
+    const errorMessages = error.errors.map((err) => err.message);
+    req.flash("errors", errorMessages);
+    return res.redirect("/auth/edit-profile");
+  }
+
+  await updateUserProfile(req.user.id, data);
 
   return res.redirect("/auth/profile");
 }

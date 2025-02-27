@@ -2,8 +2,8 @@ import { and, eq, gte, lt, or, sql } from "drizzle-orm";
 import argon2 from "argon2";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
-import fs from "fs/promises"
-import ejs from "ejs"
+import fs from "fs/promises";
+import ejs from "ejs";
 
 import {
   ACCESS_TOKEN_EXPIRY,
@@ -227,8 +227,14 @@ export async function sendNewVerifyEmailLink({ email, userId }) {
     token: randomToken,
   });
 
-  const mjmlTemplate = await fs.readFile(path.join(import.meta.dirname, "..", "emails", "verify-email.mjml"), "utf-8");
-  const filledTemplate = ejs.render(mjmlTemplate, {code: randomToken, link: verifyEmailLink});
+  const mjmlTemplate = await fs.readFile(
+    path.join(import.meta.dirname, "..", "emails", "verify-email.mjml"),
+    "utf-8"
+  );
+  const filledTemplate = ejs.render(mjmlTemplate, {
+    code: randomToken,
+    link: verifyEmailLink,
+  });
   const htmlOutput = mjml2html(filledTemplate).html;
 
   sendEmail({
@@ -236,4 +242,8 @@ export async function sendNewVerifyEmailLink({ email, userId }) {
     html: htmlOutput,
     to: email,
   }).catch(console.error);
+}
+
+export async function updateUserProfile(id, { name }) {
+  await db.update(usersTable).set({ name }).where(eq(usersTable.id, id));
 }
