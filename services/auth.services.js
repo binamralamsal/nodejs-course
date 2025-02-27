@@ -17,7 +17,7 @@ import {
   verifyEmailTokensTable,
 } from "../drizzle/schema.js";
 import { env } from "../config/env.js";
-import { sendEmail } from "../lib/nodemailer.js";
+import { sendEmail } from "../lib/send-email.js";
 import path from "path";
 import mjml2html from "mjml";
 

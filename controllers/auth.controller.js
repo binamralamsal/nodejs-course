@@ -1,4 +1,4 @@
-import { sendEmail } from "../lib/nodemailer.js";
+import { sendEmail } from "../lib/send-email.js";
 import {
   createSession,
   createUser,
