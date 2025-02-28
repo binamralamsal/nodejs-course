@@ -21,6 +21,7 @@ import {
   updateUserProfile,
   updateUserPassword,
   createResetPasswordLink,
+  getResetPasswordToken,
 } from "../services/auth.services.js";
 import {
   changePasswordSchema,
@@ -308,4 +309,17 @@ export async function postForgotPassword(req, res) {
 
   req.flash("formSubmitted", true);
   res.redirect("/auth/reset-password");
+}
+
+export async function getResetPasswordPage(req, res) {
+  const { token } = req.params;
+
+  const passwordResetData = await getResetPasswordToken(token);
+  if (!passwordResetData) return res.render("auth/wrong-reset-password-token");
+
+  return res.render("auth/reset-password", {
+    formSubmitted: req.flash("formSubmitted")[0],
+    errors: req.flash("errors"),
+    token,
+  });
 }
