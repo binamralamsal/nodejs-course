@@ -29,5 +29,9 @@ router
   .route("/change-password")
   .get(authControllers.getChangePasswordPage)
   .post(authControllers.postChangePassword);
+router
+  .route("/reset-password")
+  .get(authControllers.getForgotPasswordPage)
+  .post(authControllers.postForgotPassword);
 
 export const authRoutes = router;

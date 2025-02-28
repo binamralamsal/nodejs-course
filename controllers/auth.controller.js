@@ -269,3 +269,15 @@ export async function postChangePassword(req, res) {
 
   return res.redirect("/auth/profile");
 }
+
+export async function getForgotPasswordPage(req, res) {
+  res.render("auth/forgot-password", {
+    formSubmitted: req.flash("formSubmitted")[0],
+    errors: req.flash("errors"),
+  });
+}
+
+export async function postForgotPassword(req, res) {
+  req.flash("formSubmitted", true);
+  res.redirect("/auth/reset-password");
+}

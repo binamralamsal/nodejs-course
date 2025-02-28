@@ -60,7 +60,7 @@ export const passwordResetTokensTable = mysqlTable("password_reset_tokens", {
     .notNull()
     .references(() => usersTable.id, { onDelete: "cascade" })
     .unique(),
-  tokenHash: text("token_hash"),
+  tokenHash: text("token_hash").notNull(),
   expiresAt: timestamp("expires_at")
     .default(sql`(CURRENT_TIMESTAMP + INTERVAL 1 HOUR)`)
     .notNull(),
