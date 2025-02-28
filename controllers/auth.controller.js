@@ -208,6 +208,7 @@ export async function getEditProfilePage(req, res) {
   if (!req.user) return res.redirect("/");
 
   const user = await findUserById(req.user.id);
+  if (!user) return res.redirect("/");
 
   return res.render("auth/edit-profile", {
     name: user.name,
@@ -228,4 +229,12 @@ export async function postEditProfile(req, res) {
   await updateUserProfile(req.user.id, data);
 
   return res.redirect("/auth/profile");
+}
+
+export async function getChangePasswordPage(req, res) {
+  if (!req.user) return res.redirect("/");
+
+  return res.render("auth/change-password", {
+    errors: req.flash("errors"),
+  });
 }

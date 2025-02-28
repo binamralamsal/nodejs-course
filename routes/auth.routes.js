@@ -25,5 +25,6 @@ router
   .route("/edit-profile")
   .get(authControllers.getEditProfilePage)
   .post(authControllers.postEditProfile);
+router.route("/change-password").get(authControllers.getChangePasswordPage);
 
 export const authRoutes = router;
