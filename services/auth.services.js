@@ -2,8 +2,6 @@ import { and, eq, gte, lt, or, sql } from "drizzle-orm";
 import argon2 from "argon2";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
-import fs from "fs/promises";
-import ejs from "ejs";
 
 import {
   ACCESS_TOKEN_EXPIRY,
@@ -12,6 +10,7 @@ import {
 } from "../config/constants.js";
 import { db } from "../config/db.js";
 import {
+  passwordResetTokensTable,
   sessionsTable,
   usersTable,
   verifyEmailTokensTable,
@@ -20,6 +19,7 @@ import { env } from "../config/env.js";
 import { sendEmail } from "../lib/send-email.js";
 import path from "path";
 import mjml2html from "mjml";
+import { getHtmlFromMjmlTemplate } from "../lib/get-html-from-mjml-template.js";
 
 export async function findUserByEmail(email) {
   const [user] = await db
@@ -226,20 +226,15 @@ export async function sendNewVerifyEmailLink({ email, userId }) {
     token: randomToken,
   });
 
-  const mjmlTemplate = await fs.readFile(
-    path.join(import.meta.dirname, "..", "emails", "verify-email.mjml"),
-    "utf-8"
-  );
-  const filledTemplate = ejs.render(mjmlTemplate, {
+  const html = await getHtmlFromMjmlTemplate("verify-email.mjml", {
     code: randomToken,
     link: verifyEmailLink,
   });
-  const htmlOutput = mjml2html(filledTemplate).html;
 
   sendEmail({
     subject: "Verify your email",
     html: htmlOutput,
-    to: email,
+    to: html,
   }).catch(console.error);
 }
 
@@ -254,4 +249,20 @@ export async function updateUserPassword({ userId, newPassword }) {
     .update(usersTable)
     .set({ password: hashedPassword })
     .where(eq(usersTable.id, userId));
+}
+
+export async function createResetPasswordLink({ userId }) {
+  const randomToken = crypto.randomBytes(32).toString("hex");
+  const tokenHash = crypto
+    .createHash("sha256")
+    .update(randomToken)
+    .digest("hex");
+
+  await db
+    .delete(passwordResetTokensTable)
+    .where(eq(passwordResetTokensTable.userId, userId));
+
+  await db.insert(passwordResetTokensTable).values({ userId, tokenHash });
+
+  return `${env.FRONTEND_URL}/auth/reset-password/${randomToken}`;
 }

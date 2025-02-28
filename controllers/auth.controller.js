@@ -1,3 +1,4 @@
+import { getHtmlFromMjmlTemplate } from "../lib/get-html-from-mjml-template.js";
 import { sendEmail } from "../lib/send-email.js";
 import {
   createSession,
@@ -19,10 +20,12 @@ import {
   sendNewVerifyEmailLink,
   updateUserProfile,
   updateUserPassword,
+  createResetPasswordLink,
 } from "../services/auth.services.js";
 import {
   changePasswordSchema,
   editProfileSchema,
+  forgotPasswordSchema,
   loginUserSchema,
   registerUserSchema,
   verifyEmailInformationSchema,
@@ -278,6 +281,31 @@ export async function getForgotPasswordPage(req, res) {
 }
 
 export async function postForgotPassword(req, res) {
+  const { data, error } = forgotPasswordSchema.safeParse(req.body);
+  if (error) {
+    const errorMessages = error.errors.map((err) => err.message);
+    req.flash("errors", errorMessages);
+    return res.redirect("/auth/reset-password");
+  }
+
+  const user = await findUserByEmail(data.email);
+  if (user) {
+    const resetPasswordLink = await createResetPasswordLink({
+      userId: user.id,
+    });
+
+    const html = await getHtmlFromMjmlTemplate("reset-password-email", {
+      name: user.name,
+      link: resetPasswordLink,
+    });
+
+    sendEmail({
+      to: user.email,
+      subject: "Reset Your Password",
+      html,
+    });
+  }
+
   req.flash("formSubmitted", true);
   res.redirect("/auth/reset-password");
 }

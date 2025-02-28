@@ -56,3 +56,11 @@ export const changePasswordSchema = z
     message: "Passwords don't match",
     path: ["confirmPassword"],
   });
+
+export const forgotPasswordSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .email({ message: "Please enter a valid email address." })
+    .max(100, { message: "Email must be no more than 100 characters." }),
+});
