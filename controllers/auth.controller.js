@@ -18,8 +18,10 @@ import {
   clearVerifyEmailTokens,
   sendNewVerifyEmailLink,
   updateUserProfile,
+  updateUserPassword,
 } from "../services/auth.services.js";
 import {
+  changePasswordSchema,
   editProfileSchema,
   loginUserSchema,
   registerUserSchema,
@@ -237,4 +239,33 @@ export async function getChangePasswordPage(req, res) {
   return res.render("auth/change-password", {
     errors: req.flash("errors"),
   });
+}
+
+export async function postChangePassword(req, res) {
+  if (!req.user) return res.redirect("/");
+
+  const { data, error } = changePasswordSchema.safeParse(req.body);
+  if (error) {
+    const errorMessages = error.errors.map((err) => err.message);
+    req.flash("errors", errorMessages);
+    return res.redirect("/auth/change-password");
+  }
+
+  const { currentPassword, newPassword } = data;
+
+  const user = await findUserById(req.user.id);
+  if (!user) {
+    req.flash("errors", "Invalid email or password");
+    return res.redirect("/auth/change-password");
+  }
+
+  const isPasswordValid = await verifyPassword(user.password, currentPassword);
+  if (!isPasswordValid) {
+    req.flash("errors", "Current Password that you entered is invalid");
+    return res.redirect("/auth/change-password");
+  }
+
+  await updateUserPassword({ userId: user.id, newPassword });
+
+  return res.redirect("/auth/profile");
 }

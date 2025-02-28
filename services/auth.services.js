@@ -221,7 +221,6 @@ export async function sendNewVerifyEmailLink({ email, userId }) {
   const randomToken = generateRandomToken();
 
   await insertVerifyEmailToken({ userId: userId, token: randomToken });
-
   const verifyEmailLink = createVerifyEmailLink({
     email,
     token: randomToken,
@@ -246,4 +245,13 @@ export async function sendNewVerifyEmailLink({ email, userId }) {
 
 export async function updateUserProfile(id, { name }) {
   await db.update(usersTable).set({ name }).where(eq(usersTable.id, id));
+}
+
+export async function updateUserPassword({ userId, newPassword }) {
+  const hashedPassword = await hashPassword(newPassword);
+
+  await db
+    .update(usersTable)
+    .set({ password: hashedPassword })
+    .where(eq(usersTable.id, userId));
 }
