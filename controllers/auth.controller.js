@@ -22,6 +22,7 @@ import {
   updateUserPassword,
   createResetPasswordLink,
   getResetPasswordToken,
+  clearPasswordResetToken,
 } from "../services/auth.services.js";
 import {
   changePasswordSchema,
@@ -29,6 +30,7 @@ import {
   forgotPasswordSchema,
   loginUserSchema,
   registerUserSchema,
+  resetPasswordSchema,
   verifyEmailInformationSchema,
 } from "../validators/auth.validators.js";
 
@@ -318,8 +320,29 @@ export async function getResetPasswordPage(req, res) {
   if (!passwordResetData) return res.render("auth/wrong-reset-password-token");
 
   return res.render("auth/reset-password", {
-    formSubmitted: req.flash("formSubmitted")[0],
     errors: req.flash("errors"),
     token,
   });
+}
+
+export async function postResetPassword(req, res) {
+  const { token } = req.params;
+
+  const passwordResetData = await getResetPasswordToken(token);
+  if (!passwordResetData) return res.render("auth/wrong-reset-password-token");
+
+  const { data, error } = resetPasswordSchema.safeParse(req.body);
+  if (error) {
+    const errorMessages = error.errors.map((err) => err.message);
+    req.flash("errors", errorMessages);
+    return res.redirect(`/auth/reset-password/${token}`);
+  }
+
+  await clearPasswordResetToken(passwordResetData.userId);
+  await updateUserPassword({
+    userId: passwordResetData.userId,
+    newPassword: data.newPassword,
+  });
+
+  res.redirect("/auth/login");
 }

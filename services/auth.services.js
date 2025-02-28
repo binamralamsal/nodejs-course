@@ -282,3 +282,9 @@ export async function getResetPasswordToken(token) {
 
   return data;
 }
+
+export async function clearPasswordResetToken(userId) {
+  await db
+    .delete(passwordResetTokensTable)
+    .where(eq(passwordResetTokensTable.userId, userId));
+}
