@@ -38,5 +38,6 @@ router
   .get(authControllers.getResetPasswordPage)
   .post(authControllers.postResetPassword);
 router.get("/google", authControllers.getGoogleLoginPage);
+router.get("/google/callback", authControllers.getGoogleLoginCallback);
 
 export const authRoutes = router;

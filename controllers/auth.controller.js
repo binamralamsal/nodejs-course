@@ -1,4 +1,4 @@
-import { generateCodeVerifier, generateState } from "arctic";
+import { decodeIdToken, generateCodeVerifier, generateState } from "arctic";
 import { getHtmlFromMjmlTemplate } from "../lib/get-html-from-mjml-template.js";
 import { sendEmail } from "../lib/send-email.js";
 import {
@@ -21,6 +21,9 @@ import {
   createResetPasswordLink,
   getResetPasswordToken,
   clearPasswordResetToken,
+  getUserWithOauthId,
+  linkUserWithOauth,
+  createUserWithOauth,
 } from "../services/auth.services.js";
 
 import {
@@ -370,6 +373,7 @@ export async function getGoogleLoginPage(req, res) {
     "openid", // this is called scopes, here we are giving openid, and profile
     "profile", // openid gives tokens if needed, and profile gives user information
     // we are telling google about the information that we require from user.
+    "email", // looks like I forgot to choose email
   ]);
 
   const cookieConfig = {
@@ -383,4 +387,90 @@ export async function getGoogleLoginPage(req, res) {
   res.cookie("google_code_verifier", codeVerifier, cookieConfig);
 
   res.redirect(url.toString());
+}
+
+export async function getGoogleLoginCallback(req, res) {
+  // google redirects with code, and state in query params
+  // we will use code to find out the user
+  const { code, state } = req.query;
+  const {
+    google_oauth_state: storedState,
+    google_code_verifier: codeVerifier,
+  } = req.cookies;
+
+  if (
+    !code ||
+    !state ||
+    !storedState ||
+    !codeVerifier ||
+    state !== storedState
+  ) {
+    req.flash(
+      "errors",
+      "Couldn't login with Google because of invalid login attempt. Please try again!"
+    );
+    return res.redirect("/auth/login");
+  }
+
+  let tokens;
+  try {
+    // arctic will verify the code given by google with code verifier internally
+    tokens = await google.validateAuthorizationCode(code, codeVerifier);
+  } catch {
+    req.flash(
+      "errors",
+      "Couldn't login with Google because of invalid login attempt. Please try again!"
+    );
+    return res.redirect("/auth/login");
+  }
+
+  const claims = decodeIdToken(tokens.idToken());
+  const { sub: googleUserId, name, email } = claims;
+
+  // there are few things that we should do
+  // Condition 1: User already exists with google's oauth linked
+  // Condition 2: User already exists with the same email but google's oauth isn't linked
+  // Condition 3: User doesn't exist.
+
+  // if user is already linked then we will get the user
+  let user = await getUserWithOauthId({
+    provider: "google",
+    email,
+  });
+
+  // if user exists but user is not linked with oauth
+  if (user && !user.providerAccountId) {
+    await linkUserWithOauth({
+      userId: user.id,
+      provider: "google",
+      providerAccountId: googleUserId,
+    });
+  }
+
+  // if user doesn't exist
+  if (!user) {
+    user = await createUserWithOauth({
+      name,
+      email,
+      provider: "google",
+      providerAccountId: googleUserId,
+    });
+  }
+
+  const session = await createSession(user.id, {
+    ip: req.clientIp,
+    userAgent: req.headers["user-agent"],
+  });
+
+  const accessToken = createAccessToken({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    sessionId: session.id,
+    isEmailValid: user.isEmailValid,
+  });
+  const refreshToken = createRefreshToken(session.id);
+  setAuthCookies({ res, accessToken, refreshToken });
+
+  res.redirect("/");
 }
