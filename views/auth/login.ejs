@@ -3,45 +3,75 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login Page</title>
+    <title>Login | URL Shortener</title>
     <link rel="stylesheet" href="/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css"
+    />
   </head>
   <body>
     <%- include('../partials/header') %>
-
     <main class="container">
-      <h1 class="page-title">Login Page</h1>
-
+      <h1 class="page-title">Welcome Back</h1>
       <form action="/auth/login" method="post" class="form">
         <div class="form-group">
-          <label for="email" class="form-label">Email:</label>
+          <label for="email" class="form-label">
+            <i class="fas fa-envelope"></i> Email
+          </label>
           <input
             type="email"
             name="email"
             id="email"
             class="form-input"
+            placeholder="youremail@example.com"
             required
           />
         </div>
-
         <div class="form-group">
-          <label for="password" class="form-label">Password:</label>
+          <label for="password" class="form-label">
+            <i class="fas fa-lock"></i> Password
+          </label>
           <input
             type="password"
             name="password"
             id="password"
             class="form-input"
+            placeholder="Enter your password"
             required
           />
         </div>
-
-        <% if (errors.length > 0) { %> <% errors.forEach(function(error) { %>
-        <p class="error-message"><%= error %></p>
-        <% }); %> <% } %>
-        <button type="submit" class="btn">Login</button>
+        <% if (errors.length > 0) { %>
+        <div class="error-container">
+          <% errors.forEach(function(error) { %>
+          <p class="error-message">
+            <i class="fas fa-exclamation-circle"></i> <%= error %>
+          </p>
+          <% }); %>
+        </div>
+        <% } %>
+        <button type="submit" class="btn">
+          <i class="fas fa-sign-in-alt"></i> Login
+        </button>
       </form>
-    </main>
 
+      <div class="alternative-login">
+        <p class="divider"><span>OR</span></p>
+        <a href="/auth/google" class="btn google-btn">
+          <i class="fab fa-google"></i> Continue with Google
+        </a>
+      </div>
+
+      <div class="form-footer">
+        <p>
+          Don't have an account?
+          <a href="/auth/register" class="form-link">Sign up</a>
+        </p>
+        <p>
+          <a href="/auth/reset-password" class="form-link">Forgot password?</a>
+        </p>
+      </div>
+    </main>
     <%- include('../partials/footer') %>
   </body>
 </html>

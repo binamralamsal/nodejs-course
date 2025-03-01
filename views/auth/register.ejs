@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Register Page</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css"
+    />
     <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
@@ -52,6 +56,23 @@
 
         <button type="submit" class="btn">Register</button>
       </form>
+
+      <div class="alternative-login">
+        <p class="divider"><span>OR</span></p>
+        <a href="/auth/google" class="btn google-btn">
+          <i class="fab fa-google"></i> Continue with Google
+        </a>
+      </div>
+
+      <div class="form-footer">
+        <p>
+          Don't have an account?
+          <a href="/auth/register" class="form-link">Sign up</a>
+        </p>
+        <p>
+          <a href="/auth/reset-password" class="form-link">Forgot password?</a>
+        </p>
+      </div>
     </main>
 
     <%- include('../partials/footer') %>

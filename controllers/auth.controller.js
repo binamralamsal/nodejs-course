@@ -1,3 +1,4 @@
+import { generateCodeVerifier, generateState } from "arctic";
 import { getHtmlFromMjmlTemplate } from "../lib/get-html-from-mjml-template.js";
 import { sendEmail } from "../lib/send-email.js";
 import {
@@ -11,9 +12,6 @@ import {
   clearSession,
   setAuthCookies,
   findUserById,
-  generateRandomToken,
-  createVerifyEmailLink,
-  insertVerifyEmailToken,
   findVerificationEmailToken,
   verifyUserEmail,
   clearVerifyEmailTokens,
@@ -24,6 +22,7 @@ import {
   getResetPasswordToken,
   clearPasswordResetToken,
 } from "../services/auth.services.js";
+
 import {
   changePasswordSchema,
   editProfileSchema,
@@ -33,6 +32,8 @@ import {
   resetPasswordSchema,
   verifyEmailInformationSchema,
 } from "../validators/auth.validators.js";
+import { google } from "../lib/oauth/google.js";
+import { OAUTH_EXCHANGE_EXPIRY } from "../config/constants.js";
 
 export function getLoginPage(req, res) {
   if (req.user) return res.redirect("/");
@@ -345,4 +346,41 @@ export async function postResetPassword(req, res) {
   });
 
   res.redirect("/auth/login");
+}
+
+export async function getGoogleLoginPage(req, res) {
+  if (req.user) return res.redirect("/");
+
+  // state is generally optional but a recommended value that we can pass to oauth clients.
+  // oauth clients will send us same state in our callback which we will verify is whether equal to the one we created
+  // this is done such that the user initiating the login with oauth is the same as the one which gets callback url or not
+  const state = generateState();
+  // code verifier is a required value that we pass to the oauth clients.
+  // It's called "Proof key for code exchange" or PKCE
+  // it was introduced in RFC 7636 to provide protection to oauth 2.0
+  // the flow is basically like this:
+  // first we will send code challenge to the authorization url by hashing the code verifier using a hash method
+  // we will send both hash method and hashed value to the authorization url
+  // then in callback when we have to get user details, we have to send the code verifier to the oauth client
+  // oauth client will check whether the initial code challenge matches the hash of the code verifier sent.
+  // if this sounds complex, don't worry we don't have to care about that
+  // arctic will make it easier for us.
+  const codeVerifier = generateCodeVerifier();
+  const url = google.createAuthorizationURL(state, codeVerifier, [
+    "openid", // this is called scopes, here we are giving openid, and profile
+    "profile", // openid gives tokens if needed, and profile gives user information
+    // we are telling google about the information that we require from user.
+  ]);
+
+  const cookieConfig = {
+    httpOnly: true,
+    secure: true,
+    maxAge: OAUTH_EXCHANGE_EXPIRY,
+    sameSite: "lax", // this is such that when google redirects to our website, cookies are maintained
+  };
+
+  res.cookie("google_oauth_state", state, cookieConfig);
+  res.cookie("google_code_verifier", codeVerifier, cookieConfig);
+
+  res.redirect(url.toString());
 }

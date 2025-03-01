@@ -17,8 +17,6 @@ import {
 } from "../drizzle/schema.js";
 import { env } from "../config/env.js";
 import { sendEmail } from "../lib/send-email.js";
-import path from "path";
-import mjml2html from "mjml";
 import { getHtmlFromMjmlTemplate } from "../lib/get-html-from-mjml-template.js";
 
 export async function findUserByEmail(email) {
@@ -226,15 +224,15 @@ export async function sendNewVerifyEmailLink({ email, userId }) {
     token: randomToken,
   });
 
-  const html = await getHtmlFromMjmlTemplate("verify-email.mjml", {
+  const html = await getHtmlFromMjmlTemplate("verify-email", {
     code: randomToken,
     link: verifyEmailLink,
   });
 
   sendEmail({
     subject: "Verify your email",
-    html: htmlOutput,
-    to: html,
+    html: html,
+    to: email,
   }).catch(console.error);
 }
 
