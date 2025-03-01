@@ -62,6 +62,15 @@ export async function postLogin(req, res) {
     return res.redirect("/auth/login");
   }
 
+  if (!user.password) {
+    // if password is null
+    req.flash(
+      "errors",
+      "You have created account using social login. Please login with your social account."
+    );
+    return res.redirect("/auth/login");
+  }
+
   const isPasswordValid = await verifyPassword(user.password, password);
   if (!isPasswordValid) {
     req.flash("errors", "Invalid email or password");

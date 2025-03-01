@@ -335,7 +335,7 @@ export async function createUserWithOauth({
       .values({
         email,
         name,
-        password: "", // for now we will set it to empty string, but we will change it later.
+        password: null, // we can't know password with oauth
         isEmailValid: true, // we know that google's email are valid
       })
       .$returningId();
