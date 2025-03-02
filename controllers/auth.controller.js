@@ -502,3 +502,89 @@ export async function getGitHubLoginPage(req, res) {
 
   return res.redirect(url.toString());
 }
+
+export async function getGitHubLoginCallback(req, res) {
+  const { code, state } = req.query;
+  const { github_oauth_state: storedState } = req.cookies;
+
+  function handleFailedLogin() {
+    req.flash(
+      "errors",
+      "Couldn't login with GitHub because of invalid login attempt. Please try again!"
+    );
+    return res.redirect("/auth/login");
+  }
+
+  if (!code || !state || !storedState || state !== storedState) {
+    return handleFailedLogin();
+  }
+
+  let tokens;
+  try {
+    tokens = await github.validateAuthorizationCode(code);
+  } catch {
+    return handleFailedLogin();
+  }
+
+  const githubUserResponse = await fetch("https://api.github.com/user", {
+    headers: {
+      Authorization: `Bearer ${tokens.accessToken()}`,
+    },
+  });
+  if (!githubUserResponse.ok) return handleFailedLogin();
+  const githubUser = await githubUserResponse.json();
+  const { id: githubUserId, name } = githubUser;
+
+  const githubEmailResponse = await fetch(
+    "https://api.github.com/user/emails",
+    {
+      headers: {
+        Authorization: `Bearer ${tokens.accessToken()}`,
+      },
+    }
+  );
+  if (!githubEmailResponse.ok) return handleFailedLogin();
+
+  const emails = await githubEmailResponse.json();
+  const email = emails.filter((e) => e.primary)[0].email; // In GitHub we can have multiple emails, but we only want primary email
+  if (!email) return handleFailedLogin();
+
+  let user = await getUserWithOauthId({
+    provider: "github",
+    email,
+  });
+
+  if (user && !user.providerAccountId) {
+    await linkUserWithOauth({
+      userId: user.id,
+      provider: "github",
+      providerAccountId: githubUserId,
+    });
+  }
+
+  if (!user) {
+    user = await createUserWithOauth({
+      name,
+      email,
+      provider: "github",
+      providerAccountId: githubUserId,
+    });
+  }
+
+  const session = await createSession(user.id, {
+    ip: req.clientIp,
+    userAgent: req.headers["user-agent"],
+  });
+
+  const accessToken = createAccessToken({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    sessionId: session.id,
+    isEmailValid: user.isEmailValid,
+  });
+  const refreshToken = createRefreshToken(session.id);
+  setAuthCookies({ res, accessToken, refreshToken });
+
+  res.redirect("/");
+}

@@ -40,5 +40,6 @@ router
 router.get("/google", authControllers.getGoogleLoginPage);
 router.get("/google/callback", authControllers.getGoogleLoginCallback);
 router.get("/github", authControllers.getGitHubLoginPage);
+router.get("/github/callback", authControllers.getGitHubLoginCallback);
 
 export const authRoutes = router;
