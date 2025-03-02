@@ -37,6 +37,7 @@ import {
 } from "../validators/auth.validators.js";
 import { google } from "../lib/oauth/google.js";
 import { OAUTH_EXCHANGE_EXPIRY } from "../config/constants.js";
+import { github } from "../lib/oauth/github.js";
 
 export function getLoginPage(req, res) {
   if (req.user) return res.redirect("/");
@@ -482,4 +483,22 @@ export async function getGoogleLoginCallback(req, res) {
   setAuthCookies({ res, accessToken, refreshToken });
 
   res.redirect("/");
+}
+
+export async function getGitHubLoginPage(req, res) {
+  if (req.user) return res.redirect("/");
+
+  const state = generateState();
+  // we want user's email, that's why we have user:email in scope.
+  // it doesn't have code verifier
+  const url = github.createAuthorizationURL(state, ["user:email"]);
+
+  res.cookie("github_oauth_state", state, {
+    httpOnly: true,
+    secure: true,
+    maxAge: OAUTH_EXCHANGE_EXPIRY,
+    sameSite: "lax",
+  });
+
+  return res.redirect(url.toString());
 }

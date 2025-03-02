@@ -39,5 +39,6 @@ router
   .post(authControllers.postResetPassword);
 router.get("/google", authControllers.getGoogleLoginPage);
 router.get("/google/callback", authControllers.getGoogleLoginCallback);
+router.get("/github", authControllers.getGitHubLoginPage);
 
 export const authRoutes = router;
