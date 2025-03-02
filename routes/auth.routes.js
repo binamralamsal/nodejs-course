@@ -33,6 +33,8 @@ router
   .route("/reset-password")
   .get(authControllers.getForgotPasswordPage)
   .post(authControllers.postForgotPassword);
+// for someone who created account using oauth, we want to make sure that they can set their password
+router.route("/set-password").get(authControllers.getSetPasswordPage);
 router
   .route("/reset-password/:token")
   .get(authControllers.getResetPasswordPage)

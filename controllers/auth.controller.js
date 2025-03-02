@@ -179,6 +179,7 @@ export async function getProfilePage(req, res) {
       name: user.name,
       email: user.email,
       isEmailValid: user.isEmailValid,
+      hasPassword: Boolean(user.password), // Since not all users will have password, we will make sure that users can set their password
       id: user.id,
     },
   });
@@ -288,6 +289,14 @@ export async function postChangePassword(req, res) {
   await updateUserPassword({ userId: user.id, newPassword });
 
   return res.redirect("/auth/profile");
+}
+
+export async function getSetPasswordPage(req, res) {
+  if (!req.user) return res.redirect("/");
+
+  return res.render("auth/set-password", {
+    errors: req.flash("errors"),
+  });
 }
 
 export async function getForgotPasswordPage(req, res) {
