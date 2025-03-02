@@ -33,6 +33,7 @@ import {
   loginUserSchema,
   registerUserSchema,
   resetPasswordSchema,
+  setPasswordSchema,
   verifyEmailInformationSchema,
 } from "../validators/auth.validators.js";
 import { google } from "../lib/oauth/google.js";
@@ -297,6 +298,23 @@ export async function getSetPasswordPage(req, res) {
   return res.render("auth/set-password", {
     errors: req.flash("errors"),
   });
+}
+
+export async function postSetPassword(req, res) {
+  if (!req.user) return res.redirect("/");
+
+  const { data, error } = setPasswordSchema.safeParse(req.body);
+  if (error) {
+    const errorMessages = error.errors.map((err) => err.message);
+    req.flash("errors", errorMessages);
+    return res.redirect("/auth/set-password");
+  }
+
+  const { newPassword } = data;
+
+  await updateUserPassword({ userId: req.user.id, newPassword });
+
+  return res.redirect("/auth/profile");
 }
 
 export async function getForgotPasswordPage(req, res) {
