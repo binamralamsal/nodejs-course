@@ -181,6 +181,8 @@ export async function getProfilePage(req, res) {
       email: user.email,
       isEmailValid: user.isEmailValid,
       hasPassword: Boolean(user.password), // Since not all users will have password, we will make sure that users can set their password
+      avatarUrl: user.avatarUrl,
+      createdAt: user.createdAt,
       id: user.id,
     },
   });
@@ -236,6 +238,7 @@ export async function getEditProfilePage(req, res) {
 
   return res.render("auth/edit-profile", {
     name: user.name,
+    avatarUrl: user.avatarUrl,
     errors: req.flash("errors"),
   });
 }
@@ -243,6 +246,7 @@ export async function getEditProfilePage(req, res) {
 export async function postEditProfile(req, res) {
   if (!req.user) return res.redirect("/");
 
+  console.log(req.file);
   const { data, error } = editProfileSchema.safeParse(req.body);
   if (error) {
     const errorMessages = error.errors.map((err) => err.message);
@@ -250,7 +254,12 @@ export async function postEditProfile(req, res) {
     return res.redirect("/auth/edit-profile");
   }
 
-  await updateUserProfile(req.user.id, data);
+  const fileUrl = req.file ? `/uploads/avatar/${req.file.filename}` : undefined;
+
+  await updateUserProfile(req.user.id, {
+    name: data.name,
+    avatarUrl: data.removeAvatar ? null : fileUrl,
+  });
 
   return res.redirect("/auth/profile");
 }

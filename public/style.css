@@ -10,6 +10,7 @@ body {
     Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   background-color: #f4f4f4;
   color: #333;
+  line-height: 1.6;
 }
 
 /* Typography */
@@ -33,6 +34,14 @@ body {
   margin-bottom: 0.5rem;
 }
 
+.section-title {
+  font-size: 1.2rem;
+  color: #555;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #eee;
+}
+
 /* Container Styles */
 .container {
   max-width: 400px;
@@ -48,7 +57,7 @@ body {
 }
 
 .profile-container {
-  max-width: 600px;
+  max-width: 700px;
 }
 
 /* Form Styles */
@@ -139,6 +148,7 @@ body {
   justify-content: center;
   gap: 0.5rem;
   font-weight: 600;
+  text-decoration: none;
 }
 
 .btn:hover {
@@ -147,6 +157,22 @@ body {
 
 .btn i {
   font-size: 1.1rem;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+}
+
+.btn-danger:hover {
+  background-color: #c82333;
 }
 
 .copy-btn {
@@ -253,6 +279,7 @@ body {
   background-color: #007bff;
   color: white;
   font-size: 1rem;
+  margin-top: 2rem;
 }
 
 /* Card Styles */
@@ -317,30 +344,103 @@ body {
   background-color: white;
   padding: 1.5rem;
   border-radius: 8px;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   margin-bottom: 1.5rem;
 }
 
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.profile-avatar {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: #e9ecef;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #e9ecef;
+  color: #adb5bd;
+}
+
+.avatar-placeholder i {
+  font-size: 3rem;
+}
+
+.profile-info {
+  flex-grow: 1;
+}
+
 .profile-name {
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   color: #333;
   margin-bottom: 0.5rem;
+  font-weight: 600;
 }
 
 .profile-email {
   font-size: 1rem;
   color: #666;
-}
-
-.profile-actions {
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
-.profile-status {
-  font-size: 1rem;
-  margin-top: 1rem;
+.profile-details {
+  padding-top: 0.5rem;
+}
+
+.profile-section {
+  margin-bottom: 1.5rem;
+}
+
+.profile-section p {
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.profile-section p i {
+  color: #007bff;
+  width: 16px;
+  text-align: center;
+}
+
+.verification-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.verification-status i {
+  font-size: 1.1rem;
 }
 
 .verified {
@@ -358,14 +458,21 @@ body {
   text-decoration: none;
   font-weight: bold;
   margin-left: 0.5rem;
+  padding: 0.2rem 0.5rem;
+  background-color: #e7f5ff;
+  border-radius: 4px;
+  transition: all 0.2s ease;
 }
 
 .verify-link:hover {
+  background-color: #d0ebff;
   text-decoration: underline;
 }
 
-.verification-status {
-  margin-bottom: 1rem;
+.profile-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 /* Miscellaneous */
@@ -438,4 +545,183 @@ body {
 
 .ellipsis {
   margin: 0 5px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .profile-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .profile-info {
+    width: 100%;
+  }
+
+  .verification-status {
+    justify-content: center;
+  }
+
+  .profile-email {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+
+  .profile-avatar {
+    width: 100px;
+    height: 100px;
+  }
+
+  .profile-name {
+    font-size: 1.5rem;
+  }
+}
+
+/* Avatar Upload Styles */
+.avatar-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+  width: 100%;
+}
+
+.avatar-preview {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+#avatar-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #e9ecef;
+  color: #adb5bd;
+}
+
+.avatar-placeholder i {
+  font-size: 3rem;
+}
+
+.avatar-edit {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+}
+
+.avatar-upload-btn {
+  background-color: #007bff;
+  color: white;
+  padding: 0.6rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.avatar-upload-btn:hover {
+  background-color: #0069d9;
+}
+
+.avatar-input {
+  display: none;
+}
+
+.remove-avatar-btn {
+  background-color: #dc3545;
+  color: white;
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.remove-avatar-btn:hover {
+  background-color: #c82333;
+}
+
+/* Responsive Adjustments for Avatar Upload */
+@media (max-width: 768px) {
+  .avatar-preview {
+    width: 120px;
+    height: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .avatar-preview {
+    width: 100px;
+    height: 100px;
+  }
+
+  .avatar-edit {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .avatar-upload-btn,
+  .remove-avatar-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Enhanced Form Group for Profile Edit */
+.profile-card .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.profile-card .form-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+}
+
+.profile-card .form-label i {
+  color: #007bff;
+}
+
+.profile-card .error-container {
+  background-color: #fff8f8;
+  border-left: 4px solid #dc3545;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 4px;
+}
+
+.profile-card .btn {
+  width: 100%;
 }

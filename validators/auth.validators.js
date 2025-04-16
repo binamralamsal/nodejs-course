@@ -30,6 +30,7 @@ export const verifyEmailInformationSchema = z.object({
 
 export const editProfileSchema = z.object({
   name: nameSchema,
+  removeAvatar: z.coerce.boolean().optional().default(false),
 });
 
 export const changePasswordSchema = z

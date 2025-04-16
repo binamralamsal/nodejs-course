@@ -237,8 +237,11 @@ export async function sendNewVerifyEmailLink({ email, userId }) {
   }).catch(console.error);
 }
 
-export async function updateUserProfile(id, { name }) {
-  await db.update(usersTable).set({ name }).where(eq(usersTable.id, id));
+export async function updateUserProfile(id, { name, avatarUrl }) {
+  await db
+    .update(usersTable)
+    .set({ name, avatarUrl })
+    .where(eq(usersTable.id, id));
 }
 
 export async function updateUserPassword({ userId, newPassword }) {
