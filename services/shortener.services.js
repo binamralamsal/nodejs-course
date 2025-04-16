@@ -1,12 +1,25 @@
-import { and, eq } from "drizzle-orm";
+import { and, count, desc, eq } from "drizzle-orm";
 import { db } from "../config/db.js";
 import { shortLinksTable } from "../drizzle/schema.js";
 
-export async function getAllShortLinks(userId) {
-  return db
+// limit, and offset are set to 10, and 0 respectively by default.
+export async function getAllShortLinks({ userId, limit = 10, offset = 0 }) {
+  const conditions = eq(shortLinksTable.userId, userId);
+
+  const shortLinks = await db
     .select()
     .from(shortLinksTable)
-    .where(eq(shortLinksTable.userId, userId));
+    .where(conditions)
+    .orderBy(desc(shortLinksTable.createdAt))
+    .limit(limit)
+    .offset(offset);
+
+  const [{ totalCount }] = await db
+    .select({ totalCount: count() })
+    .from(shortLinksTable)
+    .where(conditions);
+
+  return { shortLinks, totalCount };
 }
 
 export async function getShortLinkByShortCode(shortCode) {

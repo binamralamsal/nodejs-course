@@ -10,6 +10,7 @@ import {
 import {
   editShortLinkSchema,
   newShortLinkSchema,
+  shortenerSearchParamsSchema,
   shortLinkIdSchema,
 } from "../validators/shortener.validators.js";
 
@@ -17,10 +18,20 @@ export async function getShortenerPage(req, res) {
   try {
     if (!req.user) return res.redirect("/auth/login");
 
-    const links = await getAllShortLinks(req.user.id);
+    const searchParams = shortenerSearchParamsSchema.parse(req.query);
+
+    const { shortLinks, totalCount } = await getAllShortLinks({
+      userId: req.user.id,
+      limit: 10,
+      offset: (searchParams.page - 1) * 10,
+    });
+
+    const totalPages = Math.ceil(totalCount / 10);
 
     return res.render("index", {
-      links,
+      links: shortLinks,
+      currentPage: searchParams.page,
+      totalPages: totalPages,
       host: req.host,
       errors: req.flash("errors"),
     });

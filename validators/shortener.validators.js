@@ -26,3 +26,14 @@ export const editShortLinkSchema = z.object({
   url: urlSchema,
   shortCode: shortCodeSchema,
 });
+
+export const shortenerSearchParamsSchema = z.object({
+  page: z.coerce
+    .number()
+    .int()
+    .positive()
+    .min(1)
+    .optional() // optional must come before default, otherwise default value won't be set.
+    .default(1)
+    .catch(1), // if validation error occurs, then it will choose 1. it is necessary, otherwise if validation fails then 500 will occur
+});
