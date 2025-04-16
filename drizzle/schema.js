@@ -25,6 +25,7 @@ export const usersTable = mysqlTable("users", {
   name: varchar("name", { length: 255 }).notNull(),
   email: varchar("email", { length: 255 }).notNull().unique(),
   isEmailValid: boolean("is_email_valid").default(false).notNull(),
+  avatarUrl: text("avatar_url"),
   password: varchar("password", { length: 255 }), // we are changing it to make sure that we can do null values in password, because with oauth passwords aren't set.
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
